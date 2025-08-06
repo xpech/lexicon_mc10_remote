@@ -12,6 +12,7 @@
 */
 
 #include <Arduino.h>
+#include "lexicon.h"
 
 #define SW_VERSION 26
 #if defined(ESP8266)
@@ -1125,6 +1126,10 @@ void setup()
   server.on("/program", handleProgram);
 
   server.on("/sync", handleSync);
+
+  server.on("/lexicon", handleLixiconIndex);
+  server.on("/lexiconCommand", handleLixiconCommand);
+
 
   // mise a jour OTA
   httpUpdater.setup(&server);

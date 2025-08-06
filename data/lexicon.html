@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexicom</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Coolhome Lexicom</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Sortie</h5>
+                <p class="card-text bg-light" style="min-height: 2em" id="Lexicom-output"></p>
+            </div>
+        </div>
+        <div class="card border-primary mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Télécommande</h5>
+                <p class="card-text">
+                    <select class="form-control" id="Lexicom-zone">
+                        <option value="1">Zone 1</option>
+                        <option value="2">Zone 2</option>
+                    </select>
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x0C">Standby</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x7B">Power On</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x7C">Power Off</button>
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x0D">Mute</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x1A">Mute On</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x78">Mute Off</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x10">Increase volume (+)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x11">Decrease volume (-)</button>
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x5B">Radio</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x5C">Net</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x76">CD</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x64">STB</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x77">VCR</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x5D">USB</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x5E">AV</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x1B">Sat</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x60">PVR</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x61">Game</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x63">Aux</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x1C">FM</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x48">DAB</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x62">BD</button>
+                    <hr/>
+                        
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x01">1</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x02">2</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x03">3</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x04">4</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x05">5</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x06">6</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x07">7</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x08">8</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x09">9</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x00">0</button>
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x2B">HOME</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x56">Navigate Up</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x55">Navigate Down</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x51">Navigate Left</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x50">Navigate Right</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x52">MENU (Enter system menu)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x57">OK</button>
+
+
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x36">Stop</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x35">Play</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x30">Pause</button>
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x4C">Random</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x31">Repeat</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x79">Rewind</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x34">Fast Forward</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x21">Skip Back</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x0B">Skip Forward</button>
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x3A">Display</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x5F">Change control to next zone</button>
+                    <hr>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x2F">Cycle between output resolutons</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x37">Cycle between VFD information panels</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x6B">Stereo</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x6E">Dolby Surround</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x6F">DTS Neo:6 Cinema</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x70">DTS Neo:6 Music</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x5A">Disc (Record) (Enter Trim Menu)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x71">DTS Neural:X</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x72">Logic7 Immersion</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x73">DTS Virtual:X</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x46">Pop Up (Dolby Volume on/off)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x45">5/7 Ch Stereo</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x17">Dolby D EX</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x1E">Audio (Room EQ on/off)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x0F">Lip Sync +5ms</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x65">Lip sync -5ms</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x69">Sub trim +0.5dB</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x6C">Sub trim -0.5dB</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x20">MODE (Cycle between decoding modes)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x1F">Display Off</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x3B">DISP (Change VFD brightness)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x22">Display L1</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x23">Display L2</button>
+                    <hr/>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x29">Red</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x2A">Green</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x2B">Yellow</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x37">Blue</button>
+                    <hr>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x27">Access Bass control</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x25">Access Speaker Trim controls</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x32">Access Lipsync Delay control</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x0E">Access Treble control</button>
+                    <hr/>
+
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x4E">Direct mode On</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x4F">Direct mode Off</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x6A">Multi Channel</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x33">RTN (Access Subwoofer Trim control)</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x0A">Activate DIRECT mode</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x26">Balance left</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x28">Balance right</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x2C">Bass +1</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x2D">Bass -1</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x2E">Treble +1</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x66">Treble -1</button>
+                        <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x14">Set Zone 2 to Follow Zone 1</button>
+                    <hr>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="10" data-command2="0C">On/Off</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="10" data-command2="10">Volume +</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="10" data-command2="11">Volume -</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="1D">Source</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="1A">Info Radio</button>
+                </p>
+                <h5 class="card-title">Télécommande Zone 2</h5>
+                <p class="card-text border-secondary">
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x7B">Power On</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x7C">Power Off</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x01">Vol+</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x02">Vol-</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x03">Mute</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x04">Mute On</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x05">Mute Off</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x06">CD</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x07">BD</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x08">STB</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x09">AV</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x0B">Game</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x0D">Aux</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x0F">PVR</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x0E">FM</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x10">DAB</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x12">USB</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x13">NET</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x14">SAT</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x17" data-command2="0x15">VCR</button>
+                    <hr>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x49">Select HDMI Out 1</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x4A">Select HDMI Out 2</button>
+                    <button class="btn btn-secondary" role="lexicom-rc5" data-command1="0x10" data-command2="0x4B">Select HDMI Out 1 & 2</button>
+                </p>
+            </div>
+        </div>
+        <div class="card"> 
+            <div class="card-body">
+                <h5 class="card-title">Commande directes</h5>
+                <p class="card-text">
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x00">Power</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x01" data-hex="0xF0">Display Brightness</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x02" data-hex="0xF0">Headphones</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x03" data-hex="0xF0">FM genre</button>
+                    <div class="btn-group" role="group">
+                        <select class="form-select" id="lexicom-sw-option">
+                            <option value="0xF0">Request RS232 version</option>
+                            <option value="0xF1">Request Host version</option>
+                            <option value="0xF2">Request OSD version</option>
+                            <option value="0xF3">Request DSP version</option>
+                            <option value="0xF4">Request NET version</option>
+                            <option value="0xF5">Request IAP version</option>
+                        </select>
+                        <button class="btn btn-secondary" role="lexicom" data-command="0x03" data-hex-from="#lexicom-sw-option" >Software version</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <select class="form-select" id="lexicom-display-sources">
+                            <optgroup label="For all sources">
+                                <option value="0x00">Set the display to Processing mode</option>
+                                <option value="0xE0">Cycle though all displayable information.</option>
+                                <option value="0xF0">Request the current display type</option>
+                            </optgroup>
+                            <optgroup label="If the current source is FM:"></optgroup>
+                                <option value="0x01">– Set the display to Radio text</option>
+                                <option value="0x02">– Set the display to Programme type</option>
+                                <option value="0x03">– Set the display to Signal strength</option>
+                            <optgroup label="If the current source is DAB (AVR450/750 only):"></option>
+                                <option value="0x01">Set the display to Radio text</option>
+                                <option value="0x02">Set the display to Genre</option>
+                                <option value="0x03">Set the display to Signal quality</option>
+                                <option value="0x04">Set the display to Bit rate</option>
+                            <optgroup label="If the current source is NET/USB"></option>
+                                <option value="0x01">Set the display to Track</option> 
+                                <option value="0x02">Set the display to Artist</option>
+                                <option value="0x03">Set the display to Album</option> 
+                                <option value="0x04">Set the display to audio type</option>
+                                <option value="0x05">Set the display to rate</option>  
+                            </optgroup>
+                        </select>
+                        <button class="btn btn-secondary" role="lexicom" data-command="0x00" data-hex-from="#lexicom-display-sources" >Display Information Type</button>
+                    </div>
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x1D" data-hex="0xF0">Request current source</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x1F" data-hex="0x00">Headphone Over-ride clear</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x1F" data-hex="0x01">Headphone Over-ride set</button>
+                    
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x1F" data-hex="0x01">Mute Status</button>
+
+
+                </p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Configuration</h5>
+                <p class="card-text">
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x1D">Source</button>
+                    <button class="btn btn-secondary" role="lexicom" data-command="0x1A">Info Radio</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">Lexicom Command by &copy; 2025 Coolhome</span>
+        </div>
+    </footer>
+    <!-- Bootstrap JS (optionnel) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const output = document.getElementById('Lexicom-output');
+            const zone = document.getElementById('Lexicom-zone');
+            // const data = document.getElementById('Lexicom-data');
+
+            document.querySelectorAll('button[role="lexicom-rc5"]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const command1 = btn.getAttribute('data-command1');
+                    const command2 = btn.getAttribute('data-command2');
+                    fetch(`/lexicon_rc5?zone=${zone.value}&command1=${encodeURIComponent(command1)}&command2=${encodeURIComponent(command2)}`)
+                        .then(response => response.text())
+                        .then(data => {
+                            output.textContent = `${data}`;
+                        })
+                        .catch(error => {
+                            output.textContent = `Erreur: ${error}`;
+                        });
+                });
+            });
+            document.querySelectorAll('button[role="lexicom"]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const command = btn.getAttribute('data-command');
+                    fetch(`/lexicon_cmd?zone=${zone.value}&command=${encodeURIComponent(command)}&data=`)
+                        .then(response => response.text())
+                        .then(data => {
+                            output.textContent = `${data}`;
+                        })
+                        .catch(error => {
+                            output.textContent = `Erreur: ${error}`;
+                        });
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
