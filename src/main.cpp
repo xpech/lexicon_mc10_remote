@@ -30,6 +30,9 @@
 #include <WiFiMulti.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
+#include <Update.h>
+#include <HTTPClient.h>
+
 // #include <ESPAsyncWebServer.h>
 // #include <ESPAsyncHTTPUpdateServer.h>
 #endif
@@ -1163,6 +1166,40 @@ void setup()
   // mise a jour OTA
 #ifdef ESP8266
   httpUpdater.setup(&server);
+#else
+  server.on("/update", HTTP_GET, []() {
+    server.sendHeader("Location", "/update");
+    server.send(302, "text/plain", "Redirecting to update page");
+  });
+  server.on("/update", HTTP_POST, []() {
+    server.send(200, "text/plain", "Update complete. Rebooting...");
+    ESP.restart();
+  }, []() {
+    HTTPUpload& upload = server.upload();
+    if (upload.status == UPLOAD_FILE_START) {
+      String filename = upload.filename;
+      if (!filename.startsWith("/")) {
+        filename = "/" + filename; // Ensure the filename starts with a slash
+      }
+      Serial.printf("Update: %s\n", filename.c_str());
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_END) {
+      if (Update.end(true)) { // true to keep the sketch after update
+        Serial.printf("Update Success: %u bytes\n", upload.totalSize);
+      } else {
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_ABORTED) {
+      Serial.println("Update Aborted");
+    }
+  });
+  
 #endif
   // demarrage du server web
   server.begin();
@@ -1190,7 +1227,6 @@ String updatehost = "coolhome.ovh";
 
 bool connectService()
 {
-#ifdef ESP8266
   Serial.println("connectService");
   updateDatas();
   WiFiClient client;
@@ -1296,7 +1332,9 @@ bool connectService()
           if (resp["firmware_url"])
           {
             const char* firmware_url = resp["firmware_url"];
+            #ifdef ESP8266
             ESPhttpUpdate.update(client, firmware_url);
+            #endif
           }
         }
       }
@@ -1304,7 +1342,6 @@ bool connectService()
       return true;
     }
   }
-#endif
   return false;
 }
 
