@@ -29,6 +29,7 @@
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <WebServer.h>
+#include <ESPmDNS.h>
 // #include <ESPAsyncWebServer.h>
 // #include <ESPAsyncHTTPUpdateServer.h>
 #endif
@@ -1125,14 +1126,13 @@ void setup()
   // WiFi.hostname(nsname);
   Serial.print("Start mDNS: ");
   delay(700);
-#ifdef ESP8266
+
   if (MDNS.begin(hostname)) {
     Serial.println("MDNS responder started");
   }
   delay(700);
   MDNS.addService("coolhome", "tcp", 80); // declare un service
   MDNS.addService("http", "tcp", 80);
-#endif
   
   Serial.print("start DHT on pin ");
   Serial.println(DHTPIN);
