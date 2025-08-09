@@ -28,6 +28,9 @@
 #define SW_PLATFORM "ESP32"
 #include <WiFi.h>
 #include <WiFiMulti.h>
+#include <WebServer.h>
+// #include <ESPAsyncWebServer.h>
+// #include <ESPAsyncHTTPUpdateServer.h>
 #endif
 
 #include <WiFiClient.h>
@@ -51,9 +54,13 @@ int sw_data_pos = -1;
 int sw_data_pos_full = 0;
 #define SW_H_LENGTH 1024
 
+#if defined(ESP8266)
 ESP8266WebServer server(80);
 ESP8266HTTPUpdateServer httpUpdater;
-
+#else
+WebServer server(80);
+// HTTPUpdateServer httpUpdater;
+#endif
 /* DNS server
    En mode setup permet d'acceder directement à la fenetre de config
 */
@@ -206,10 +213,21 @@ Config myconf;  // global conf object
 #define MODE_PILOT 2
 #define MODE_WATERING 3
 
+long getChipId()
+{
+#if defined(ESP8266)
+  return ESP.getChipId();
+#else
+  return ESP.getEfuseMac();
+#endif
+}
+
 void conf_load()
 {
   Serial.print("conf_load ");
   Serial.println(sizeof(myconf));
+
+  return;
   EEPROM.begin(sizeof(myconf));
   EEPROM.get(0, myconf);
 }
@@ -296,7 +314,11 @@ void IRAM_ATTR resetWifi()
   EEPROM.put(0, newconf);
   EEPROM.commit();
   Serial.println("will reset by button");
+  #if defined(ESP8266)
   ESP.reset();
+  #else
+  ESP.restart();
+  #endif
   interrupts();
 }
 
@@ -528,7 +550,7 @@ String htmlNav()
          "<li class=\"nav-item\"><a class=\"nav-link\" href=\"/json\">JSON</a></li>"
          "</ul></div><ul class=\"navbar-nav flex-row ml-md-auto d-none d-md-flex\">"
          "<li class=\"nav-item nav-link\"><a href=\"https://coolhome.ovh\">CoolHome</a></li>"
-         "<li class=\"nav-item nav-link\">ESP #" + String(ESP.getChipId()) + "</li>"
+         "<li class=\"nav-item nav-link\">ESP #" + String(getChipId()) + "</li>"
          "<li class=\"nav-item nav-link\">version " + String(SW_VERSION) + " (" + __DATE__ + ")</li>"
          "<li class=\"nav-item nav-link\">" + timezone.dateTime() + "</li></ul></nav>";
 }
@@ -1039,22 +1061,28 @@ void setup()
 {
   // demare la sortie standard
   Serial.begin(9600);
+  // sleep(3000); // pour laisser le temps au serial de demarrer
+  Serial.println("SETUP START");
+  
   pinMode(TOASTER_PIN, OUTPUT);   // set pin to output
 
   // Serial.setDebugOutput(true);
   hostname = "coolhome_";
-  hostname.concat(ESP.getChipId());
+  hostname.concat(getChipId());
 
+  Serial.println(hostname);
+  
+
+  
   pinMode( RESET_PIN, INPUT);
-  attachInterrupt(digitalPinToInterrupt(RESET_PIN), resetWifi, CHANGE);
-
+  // attachInterrupt(digitalPinToInterrupt(RESET_PIN), resetWifi, CHANGE);
+  
   /* Chargement Config */
   // Config myconf;
   conf_load();
   stopToaster();
   Serial.print("SSID : ");
   Serial.println(myconf.wifi_ssid);
-  
   /* Manage Wifi */
   //WiFi.setAutoConnect(true);
   WiFi.begin();
@@ -1097,14 +1125,15 @@ void setup()
   // WiFi.hostname(nsname);
   Serial.print("Start mDNS: ");
   delay(700);
+#ifdef ESP8266
   if (MDNS.begin(hostname)) {
     Serial.println("MDNS responder started");
   }
   delay(700);
   MDNS.addService("coolhome", "tcp", 80); // declare un service
   MDNS.addService("http", "tcp", 80);
-
-
+#endif
+  
   Serial.print("start DHT on pin ");
   Serial.println(DHTPIN);
   pinMode(DHTPIN, INPUT);           // set pin to input
@@ -1130,9 +1159,11 @@ void setup()
   server.on("/lexicon", handleLixiconIndex);
   server.on("/lexiconCommand", handleLixiconCommand);
 
-
+  lexiconSetup();
   // mise a jour OTA
+#ifdef ESP8266
   httpUpdater.setup(&server);
+#endif
   // demarrage du server web
   server.begin();
   Serial.println("started");
@@ -1159,6 +1190,7 @@ String updatehost = "coolhome.ovh";
 
 bool connectService()
 {
+#ifdef ESP8266
   Serial.println("connectService");
   updateDatas();
   WiFiClient client;
@@ -1166,7 +1198,7 @@ bool connectService()
   if (http.begin(client, host))
   {
     http.addHeader("Content-Type", "application/json");
-    http.addHeader("CoolHomeDeviceId", String(ESP.getChipId()));
+    http.addHeader("CoolHomeDeviceId", String(getChipId()));
     http.addHeader("CoolHomeAccount", myconf.cloudlogin);
     DynamicJsonDocument request(2048);
     String json;
@@ -1177,7 +1209,7 @@ bool connectService()
     myconf.mode = myconf.mode & ~(1 << MODE_AUTO);
     
 
-    request["sensorid"] = ESP.getChipId();
+    request["sensorid"] = getChipId();
     request["heater"] = toaster;
     JsonArray sensors = request.createNestedArray("sensors");
     
@@ -1272,6 +1304,7 @@ bool connectService()
       return true;
     }
   }
+#endif
   return false;
 }
 
@@ -1333,8 +1366,9 @@ void loop() {
 
   // strdebug = "";
 
-
+#ifdef ESP8266
   MDNS.update(); // mise à jour MDNS / necessaire !
+#endif
   server.handleClient(); // on verifie si on a une connexion http et on la gère
   dnsServer.processNextRequest();
 

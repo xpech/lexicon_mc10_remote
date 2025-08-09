@@ -1,15 +1,20 @@
-#include "lexicon.h"
+#include <lexicon.h>
 #include "LittleFS.h" 
 #include <SoftwareSerial.h>
 
 EspSoftwareSerial::UART lexiconSerial;
 
-#define LEXICON_RX IO_18 // RX pin for Lexicon
-#define LEXICON_TX IO_19 // TX pin for Lexicon
+#define LEXICON_RX GPIO_NUM_18 // RX pin for Lexicon
+#define LEXICON_TX GPIO_NUM_19 // TX pin for Lexicon
 
 // last command status
 int lexiconError = 0;
+#ifdef ESP8266
 extern ESP8266WebServer server; // Pointer to the server instance
+#else
+extern WebServer server; // Pointer to the server instance
+#endif
+
 
 /*
 	Each transmission by the RC is the following format:
@@ -162,14 +167,41 @@ int lexiconSetup()
 
 void handleLixiconIndex()
 {
+	#ifdef ESP8266
 	SPIFFS.begin(); // Ensure SPIFFS is mounted
+	#else
+	Serial.println("Mounting LittleFS...");
+	LittleFS.begin(); // Ensure LittleFS is mounted
+	#endif
+
+
+  	// Set the content type and length for the response
+	#ifdef ESP8266
+  	server.setContentType(F("text/html")); // Set content type to HTML
+  	server.setCacheControl(F("no-cache")); // Disable caching
+  	server.setHeader(F("Access-Control-Allow-Origin"), F("*")); // Allow CORS
+  	server.setHeader(F("Access-Control-Allow-Methods"), F("GET, POST, OPTIONS")); // Allow specific methods
+  	server.setHeader(F("Access-Control-Allow-Headers"), F("Content-Type, Authorization")); // Allow specific headers
 	// Serve the lexicon HTML file
+	#else
+  	server.sendHeader("ContentType",F("text/html")); // Set content type to HTML
+  	server.sendHeader("CacheControl",F("no-cache")); // Disable caching
+  	server.sendHeader(F("Access-Control-Allow-Origin"), F("*")); // Allow CORS
+  	server.sendHeader(F("Access-Control-Allow-Methods"), F("GET, POST, OPTIONS")); // Allow specific methods
+  	server.sendHeader(F("Access-Control-Allow-Headers"), F("Content-Type, Authorization")); // Allow specific headers
+	#endif
+	
+
 
   	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
 
   	server.send(200, F("text/html"), "");
+	#ifdef ESP8266
 	File f = SPIFFS.open("/lexicon.hml", "r"); // Open the HTML file from SPIFFS
-	if (f.isFile())
+	#else
+	File f = LittleFS.open("/lexicon.html", "r"); // Open the HTML file from LittleFS
+	#endif
+	if (f.available()) // Check if the file is available
 	{
 		String content = f.readString(); // Read the file content
 		server.sendContent(content); // Send the content to the client
@@ -179,24 +211,6 @@ void handleLixiconIndex()
 	{
 		server.send(404, F("text/plain"), F("File not found")); // Send 404 if file not found
 	}
-	/*
-<html>
-<head>
-<title>Lexicon Index</title>
-</head>
-<body>
-<h1>Lexicon Index</h1>
-<div id="Output"></div>
-<button date-type="RC5" data-command1="0x10" data-command2="0x0C">On/Off</button>
-<button date-type="RC5" data-command1="0x10" data-command2="0x10">Volume +</button>
-<button date-type="RC5" data-command1="0x10" data-command2="0x11">Volume -</button>
-<script>
-<!--
-
-</p>
-</body>
-
-	*/
 }
 
 int getIntFromHexArg(const String &argName)
