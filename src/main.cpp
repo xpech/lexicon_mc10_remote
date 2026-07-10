@@ -239,6 +239,7 @@ void conf_load()
 void conf_save()
 {
   Serial.print("conf_save()");
+  return;
   EEPROM.put(0, myconf);
   EEPROM.commit();
 }
@@ -313,10 +314,10 @@ void IRAM_ATTR resetWifi()
   Serial.println("Reset Setup");
   myconf.setup_ok = 0;
   Config newconf;
-  EEPROM.get(0, newconf);
+  // EEPROM.get(0, newconf);
   newconf.setup_ok = 0;
-  EEPROM.put(0, newconf);
-  EEPROM.commit();
+  // EEPROM.put(0, newconf);
+  // EEPROM.commit();
   Serial.println("will reset by button");
   #if defined(ESP8266)
   ESP.reset();

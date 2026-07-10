@@ -1,5 +1,7 @@
 #include <lexicon.h>
-#include "LittleFS.h" 
+#include <FS.h>
+#define SPIFFS LITTLEFS
+#include <LittleFS.h>
 #include <SoftwareSerial.h>
 
 EspSoftwareSerial::UART lexiconSerial;
@@ -191,15 +193,12 @@ void handleLixiconIndex()
   	server.sendHeader(F("Access-Control-Allow-Headers"), F("Content-Type, Authorization")); // Allow specific headers
 	#endif
 	
-
-
   	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-
   	server.send(200, F("text/html"), "");
 	#ifdef ESP8266
-	File f = SPIFFS.open("/lexicon.hml", "r"); // Open the HTML file from SPIFFS
+	// File f = SPIFFS.open("/lexicon.hml", "r"); // Open the HTML file from SPIFFS
 	#else
-	File f = LittleFS.open("/lexicon.html", "r"); // Open the HTML file from LittleFS
+	File f = LittleFS.open("/lexicon.html", FILE_READ); // Open the HTML file from LittleFS
 	#endif
 	if (f.available()) // Check if the file is available
 	{

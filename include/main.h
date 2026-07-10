@@ -1,5 +1,8 @@
 
 #include <Arduino.h>
+#include <FS.h>
+#define SPIFFS LITTLEFS
+#include <LittleFS.h>
 
 
 /* */
