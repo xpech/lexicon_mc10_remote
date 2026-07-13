@@ -1,243 +1,390 @@
 #include <lexicon.h>
+#include <azur840.h>
+
 #include <FS.h>
-#define SPIFFS LITTLEFS
-#include <LittleFS.h>
-#include <SoftwareSerial.h>
-
-EspSoftwareSerial::UART lexiconSerial;
-
-#define LEXICON_RX GPIO_NUM_18 // RX pin for Lexicon
-#define LEXICON_TX GPIO_NUM_19 // TX pin for Lexicon
-
-// last command status
-int lexiconError = 0;
 #ifdef ESP8266
-extern ESP8266WebServer server; // Pointer to the server instance
+#include <LittleFS.h>
+#define LEXICON_FS LittleFS
 #else
-extern WebServer server; // Pointer to the server instance
+#include <LittleFS.h>
+#define LEXICON_FS LittleFS
 #endif
 
+#define LEXICON_RX GPIO_NUM_18
+#define LEXICON_TX GPIO_NUM_19
 
-/*
-	Each transmission by the RC is the following format:
-<St> <Zn> <Cc> <Dl> <Data> <Et>
-	St (Start transmission): 0x21 ‘!’
-	Zn (Zone number): see below.
-	Cc (Command code): the code for the command
-	Dl (Data length): the number of data items following this item,excluding the ETR
-	Data: the parameters for the command
-	Et (End transmission): 0x0D
+#ifdef ESP8266
+extern ESP8266WebServer server;
+#else
+extern WebServer server;
+#endif
 
+namespace {
+constexpr uint8_t kFrameStart = 0x21;
+constexpr uint8_t kFrameEnd = 0x0D;
+constexpr uint8_t kRc5CommandCode = 0x08;
+constexpr uint32_t kDefaultTimeoutMs = 3000;
 
-	Each response by the AVR is the following format::
-	<St> <Zn> <Cc> <Ac> <Dl> <Data> <Et>
-	St (Start transmission): 0x21 ‘!’
-	Zn (Zone number): see below.
-	Cc (Command code): the code for the command
-	Ac (Answer code): see below.
-	Dl (Data Length): the number of data items following this item, excluding the ETR
-	Data: the parameters for the response of length n. n is limited to 255.
-	Et (End transmission): 0x0D
+LexiconComm g_lexicon;
+bool g_fsReady = false;
 
-*/
-char *sendCommand(int zone, int command, char *data)
-{
-	lexiconError = 0; // Reset error code
+bool parseHexByteArg(const String &name, uint8_t &value) {
+  if (!server.hasArg(name)) {
+    return false;
+  }
 
-	lexiconSerial.write(0x21);			// Start transmission
-	lexiconSerial.write(zone);			// Zone number
-	lexiconSerial.write(command);		// Command code
-	lexiconSerial.write(strlen(data)); // Data length
-	lexiconSerial.print(data);			// Data
-	lexiconSerial.write(0x0D);			// End transmission
-	lexiconSerial.flush();				// Ensure all data is sent
+  String raw = server.arg(name);
+  if (raw.length() == 0) {
+    return false;
+  }
 
-	// Wait for response
-	while (lexiconSerial.available() == 0)
-	{
-		delay(10); // Wait for data to be available
-	}
-	int responseCode = lexiconSerial.read(); // Read the first byte of the response
-	if (responseCode != 0x21)
-	{
-		// Invalid response, return NULL
-		lexiconError = 1; // Set error code for bad response
-		return "Bad response code";
-	}
-	int responseZone = lexiconSerial.read();	 // Read the zone number from the response
-	int responseCommand = lexiconSerial.read(); // Read the command code from the response
-	int responseLength = lexiconSerial.read();	 // Read the data length from the response
-	if (responseLength <= 0 || responseLength > 255)
-	{
-		// Invalid data length, return NULL
-		lexiconError = 1; // Set error code for bad response
-		return "Invalid data length";
-	}
-	char responseData[256]; // Buffer for response data
-	int bytesRead = 0;
-	while (bytesRead < responseLength && lexiconSerial.available() > 0)
-	{
-		responseData[bytesRead++] = lexiconSerial.read(); // Read each byte of data
-	}
-	responseData[bytesRead] = '\0'; // Null-terminate the string
-	if (bytesRead != responseLength)
-	{
-		// Not enough data read, return NULL
-		lexiconError = 1; // Set error code for bad response
-		return "Not enough data read";
-	}
-	// Check if the response is valid
-	if (responseZone != zone || responseCommand != command)
-	{
-		// Zone or command mismatch, return NULL
-		lexiconError = 1; // Set error code for bad response
-		return "Zone or command mismatch";
-	}
-	return responseData;
+  char *endPtr = nullptr;
+  const unsigned long parsed = strtoul(raw.c_str(), &endPtr, 16);
+  if (endPtr == raw.c_str() || *endPtr != '\0' || parsed > 0xFFUL) {
+    return false;
+  }
+
+  value = static_cast<uint8_t>(parsed);
+  return true;
 }
 
-const char *sendCommandRC5(int zone, int command1, int command2)
-{
-	lexiconSerial.write(0x21);		// Start transmission
-	lexiconSerial.write(zone);		// Zone number
-	lexiconSerial.write(0x08);		// Command code for RC5 (not used)
-	lexiconSerial.write(0x02);		// Data length (2 bytes for RC5 command)
-	lexiconSerial.write(command1); // Command code
-	lexiconSerial.write(command2); // Data length
-	lexiconSerial.write(0x0D);		// End transmission
-	lexiconSerial.flush();			// Ensure all data is sent
-	// Wait for response
-	while (lexiconSerial.available() == 0)
-	{
-		delay(10); // Wait for data to be available
-	}
-	/*
-	RESPONSE:
-	Byte: Description:
-	St 0x21
-	Zn Zone number
-	Cc 0x08
-	Ac Answer code
-	Dl 0x02
-	Data1 RC5 System code
-	Data2 RC5 Command code
-	Et 0x0D*/
-
-	int responseCode = lexiconSerial.read(); // Read the first byte of the response
-	if (responseCode != 0x21)
-	{
-		// Invalid response, return NULL
-		lexiconError = 1; // Set error code for bad response
-		return "RC5 Bad response code";
-	}
-	int responseZone = Serial.read();	 // Read the zone number from the response
-	int responseCommand = Serial.read(); // Read the command code from the response
-	int responseLength = Serial.read();	 // Read the data length from the response
-	if (responseLength != 2)
-	{
-		// Invalid data length, return NULL
-		lexiconError = 1; // Set error code for bad response
-		return "Invalid data length";
-	}
-	int rc5SystemCode = Serial.read();	// Read the first byte of RC5 command
-	int rc5CommandCode = Serial.read(); // Read the second byte of RC5 command
-	if (responseZone != zone || responseCommand != 0x08)
-	{
-		// Zone or command mismatch, return NULL
-		lexiconError = 1; // Set error code for bad response
-		return "Zone or command mismatch";
-	}
-	char *result = new char[256];
-	// sprintf(result, "%02X%02X", rc5SystemCode, rc5CommandCode);
-	return "OK";
+void sendCorsHeaders() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  server.sendHeader("Cache-Control", "no-cache");
 }
 
-int lexiconSetup()
-{
-	// Initialize the server
-	server.on("/lexicon", HTTP_GET, handleLixiconIndex);
-	server.on("/lexicon_cmd", HTTP_GET, handleLixiconCommand);
-	server.on("/lexicon_rc5", HTTP_GET, handleLixiconRC5Command);
-	server.begin(); // Start the server
+} // namespace
 
-	// Initialize the SoftwareSerial for Lexicon communication
-	lexiconSerial.begin(38400,SWSERIAL_8N1, LEXICON_RX, LEXICON_TX, false); // Set baud rate to 9600
-	lexiconSerial.setTimeout(1000); // Set timeout for reading data
-	lexiconError = 0; // Reset error code
-	return 0; // Return success
+LexiconComm::LexiconComm()
+    : initialized_(false), serial_(), lastError_(kOk), pendingCount_(0) {
+  lastErrorMessage_[0] = '\0';
 }
 
-void handleLixiconIndex()
-{
-	#ifdef ESP8266
-	SPIFFS.begin(); // Ensure SPIFFS is mounted
-	#else
-	Serial.println("Mounting LittleFS...");
-	LittleFS.begin(); // Ensure LittleFS is mounted
-	#endif
-
-
-  	// Set the content type and length for the response
-	#ifdef ESP8266
-  	server.setContentType(F("text/html")); // Set content type to HTML
-  	server.setCacheControl(F("no-cache")); // Disable caching
-  	server.setHeader(F("Access-Control-Allow-Origin"), F("*")); // Allow CORS
-  	server.setHeader(F("Access-Control-Allow-Methods"), F("GET, POST, OPTIONS")); // Allow specific methods
-  	server.setHeader(F("Access-Control-Allow-Headers"), F("Content-Type, Authorization")); // Allow specific headers
-	// Serve the lexicon HTML file
-	#else
-  	server.sendHeader("ContentType",F("text/html")); // Set content type to HTML
-  	server.sendHeader("CacheControl",F("no-cache")); // Disable caching
-  	server.sendHeader(F("Access-Control-Allow-Origin"), F("*")); // Allow CORS
-  	server.sendHeader(F("Access-Control-Allow-Methods"), F("GET, POST, OPTIONS")); // Allow specific methods
-  	server.sendHeader(F("Access-Control-Allow-Headers"), F("Content-Type, Authorization")); // Allow specific headers
-	#endif
-	
-  	server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-  	server.send(200, F("text/html"), "");
-	#ifdef ESP8266
-	// File f = SPIFFS.open("/lexicon.hml", "r"); // Open the HTML file from SPIFFS
-	#else
-	File f = LittleFS.open("/lexicon.html", FILE_READ); // Open the HTML file from LittleFS
-	#endif
-	if (f.available()) // Check if the file is available
-	{
-		String content = f.readString(); // Read the file content
-		server.sendContent(content); // Send the content to the client
-		f.close(); // Close the file
-	}
-	else
-	{
-		server.send(404, F("text/plain"), F("File not found")); // Send 404 if file not found
-	}
+bool LexiconComm::begin(uint32_t baudrate) {
+  serial_.begin(baudrate, SWSERIAL_8N1, LEXICON_RX, LEXICON_TX, false);
+  serial_.setTimeout(kDefaultTimeoutMs);
+  initialized_ = true;
+  setError(kOk, "OK");
+  clearInput();
+  return true;
 }
 
-int getIntFromHexArg(const String &argName)
-{
-	if (server.hasArg(argName))
-	{
-		String argValue = server.arg(argName);
-		const char *arg = argValue.c_str(); // Get the command string as a C-style string
-		return strtol(arg, 0, 16);
-	}
-	return 0; // Default value if argument is not present
+bool LexiconComm::sendCommand(uint8_t zone, uint8_t command, const String &data, String &responseData, uint8_t &answerCode) {
+  if (!initialized_) {
+    setError(kNotInitialized, "UART not initialized");
+    return false;
+  }
+  if (data.length() > 255) {
+    setError(kInput, "Data too long");
+    return false;
+  }
+
+  ResponseFrame cached;
+  if (dequeueMatchingResponse(zone, command, cached)) {
+    responseData = cached.data;
+    answerCode = cached.answer;
+    setError(kOk, "OK");
+    return true;
+  }
+
+  serial_.write(kFrameStart);
+  serial_.write(zone);
+  serial_.write(command);
+  serial_.write(static_cast<uint8_t>(data.length()));
+  serial_.print(data);
+  serial_.write(kFrameEnd);
+  serial_.flush();
+
+  const uint32_t startedAt = millis();
+  while (millis() - startedAt < kDefaultTimeoutMs) {
+    const uint32_t elapsed = millis() - startedAt;
+    const uint32_t remaining = kDefaultTimeoutMs - elapsed;
+
+    uint8_t responseZone = 0;
+    uint8_t responseCommand = 0;
+    uint8_t responseAnswer = 0;
+    String responsePayload;
+
+    if (!readFrame(responseZone, responseCommand, responseAnswer, responsePayload, remaining)) {
+      return false;
+    }
+
+    if (responseZone == zone && responseCommand == command) {
+      responseData = responsePayload;
+      answerCode = responseAnswer;
+      setError(kOk, "OK");
+      return true;
+    }
+
+    enqueuePendingResponse(responseZone, responseCommand, responseAnswer, responsePayload);
+  }
+
+  setError(kTimeout, "No matching response before timeout");
+  return false;
 }
 
-void handleLixiconCommand()
-{
-	int zone = getIntFromHexArg("zone"); // Get the zone number from the request
-	int command = getIntFromHexArg("command"); // Get the zone number from the request
-	String data = server.arg("command"); // Get the zone number from the request
-	const char* res = sendCommand( zone,  command, (char*)(data.c_str())); // Send the command to the Lexicon device
-	server.send(200, F("text/plain"), res); // Send success response
+bool LexiconComm::sendRc5(uint8_t zone, uint8_t command1, uint8_t command2, String &responseHex, uint8_t &answerCode) {
+  if (!initialized_) {
+    setError(kNotInitialized, "UART not initialized");
+    return false;
+  }
+
+  ResponseFrame cached;
+  if (dequeueMatchingResponse(zone, kRc5CommandCode, cached)) {
+    if (cached.data.length() != 2) {
+      setError(kLength, "Unexpected RC5 payload length");
+      return false;
+    }
+
+    char cachedHex[5];
+    snprintf(cachedHex, sizeof(cachedHex), "%02X%02X", static_cast<uint8_t>(cached.data[0]), static_cast<uint8_t>(cached.data[1]));
+    responseHex = cachedHex;
+    answerCode = cached.answer;
+    setError(kOk, "OK");
+    return true;
+  }
+
+  serial_.write(kFrameStart);
+  serial_.write(zone);
+  serial_.write(kRc5CommandCode);
+  serial_.write(static_cast<uint8_t>(2));
+  serial_.write(command1);
+  serial_.write(command2);
+  serial_.write(kFrameEnd);
+  serial_.flush();
+
+  const uint32_t startedAt = millis();
+  while (millis() - startedAt < kDefaultTimeoutMs) {
+    const uint32_t elapsed = millis() - startedAt;
+    const uint32_t remaining = kDefaultTimeoutMs - elapsed;
+
+    uint8_t responseZone = 0;
+    uint8_t responseCommand = 0;
+    uint8_t responseAnswer = 0;
+    String responsePayload;
+
+    if (!readFrame(responseZone, responseCommand, responseAnswer, responsePayload, remaining)) {
+      return false;
+    }
+
+    if (responseZone == zone && responseCommand == kRc5CommandCode) {
+      if (responsePayload.length() != 2) {
+        setError(kLength, "Unexpected RC5 payload length");
+        return false;
+      }
+
+      char hexBuffer[5];
+      snprintf(hexBuffer, sizeof(hexBuffer), "%02X%02X", static_cast<uint8_t>(responsePayload[0]), static_cast<uint8_t>(responsePayload[1]));
+      responseHex = hexBuffer;
+      answerCode = responseAnswer;
+      setError(kOk, "OK");
+      return true;
+    }
+
+    enqueuePendingResponse(responseZone, responseCommand, responseAnswer, responsePayload);
+  }
+
+  setError(kTimeout, "No matching RC5 response before timeout");
+  return false;
 }
 
-void handleLixiconRC5Command()
-{
-	int zone = getIntFromHexArg("zone"); // Get the zone number from the request
-	int command1 = getIntFromHexArg("command1"); // Get the zone number from the request
-	int command2 = getIntFromHexArg("command2"); // Get the zone number from the request
-	String data = server.arg("command"); // Get the zone number from the request
-	const char* res = sendCommandRC5( zone,  command1, command2); // Send the command to the Lexicon device
-	server.send(200, F("text/plain"), res); // Send success response
+LexiconComm::ErrorCode LexiconComm::lastError() const {
+  return lastError_;
+}
+
+const char *LexiconComm::lastErrorMessage() const {
+  return lastErrorMessage_;
+}
+
+void LexiconComm::clearInput() {
+  while (serial_.available() > 0) {
+    serial_.read();
+  }
+}
+
+bool LexiconComm::readByteWithTimeout(uint8_t &value, uint32_t timeoutMs) {
+  const uint32_t start = millis();
+  while (serial_.available() == 0) {
+    if (millis() - start >= timeoutMs) {
+      setError(kTimeout, "Serial read timeout");
+      return false;
+    }
+    delay(1);
+  }
+
+  const int readValue = serial_.read();
+  if (readValue < 0) {
+    setError(kFrame, "Serial read failed");
+    return false;
+  }
+
+  value = static_cast<uint8_t>(readValue);
+  return true;
+}
+
+bool LexiconComm::readFrame(uint8_t &zone, uint8_t &command, uint8_t &answer, String &data, uint32_t timeoutMs) {
+  uint8_t start = 0;
+  if (!readByteWithTimeout(start, timeoutMs)) {
+    return false;
+  }
+  if (start != kFrameStart) {
+    setError(kFrame, "Invalid frame start");
+    return false;
+  }
+
+  uint8_t length = 0;
+  if (!readByteWithTimeout(zone, timeoutMs) ||
+      !readByteWithTimeout(command, timeoutMs) ||
+      !readByteWithTimeout(answer, timeoutMs) ||
+      !readByteWithTimeout(length, timeoutMs)) {
+    return false;
+  }
+
+  data = "";
+  data.reserve(length);
+  for (uint8_t i = 0; i < length; ++i) {
+    uint8_t current = 0;
+    if (!readByteWithTimeout(current, timeoutMs)) {
+      return false;
+    }
+    data += static_cast<char>(current);
+  }
+
+  uint8_t end = 0;
+  if (!readByteWithTimeout(end, timeoutMs)) {
+    return false;
+  }
+  if (end != kFrameEnd) {
+    setError(kFrame, "Invalid frame end");
+    return false;
+  }
+
+  return true;
+}
+
+bool LexiconComm::dequeueMatchingResponse(uint8_t zone, uint8_t command, ResponseFrame &frame) {
+  for (size_t i = 0; i < pendingCount_; ++i) {
+    if (pendingFrames_[i].zone == zone && pendingFrames_[i].command == command) {
+      frame = pendingFrames_[i];
+      for (size_t j = i + 1; j < pendingCount_; ++j) {
+        pendingFrames_[j - 1] = pendingFrames_[j];
+      }
+      --pendingCount_;
+      return true;
+    }
+  }
+  return false;
+}
+
+void LexiconComm::enqueuePendingResponse(uint8_t zone, uint8_t command, uint8_t answer, const String &data) {
+  ResponseFrame frame;
+  frame.zone = zone;
+  frame.command = command;
+  frame.answer = answer;
+  frame.data = data;
+
+  if (pendingCount_ < kPendingFrameCount) {
+    pendingFrames_[pendingCount_] = frame;
+    ++pendingCount_;
+    return;
+  }
+
+  for (size_t i = 1; i < kPendingFrameCount; ++i) {
+    pendingFrames_[i - 1] = pendingFrames_[i];
+  }
+  pendingFrames_[kPendingFrameCount - 1] = frame;
+}
+
+void LexiconComm::setError(ErrorCode code, const char *message) {
+  lastError_ = code;
+  if (message == nullptr) {
+    lastErrorMessage_[0] = '\0';
+    return;
+  }
+  snprintf(lastErrorMessage_, sizeof(lastErrorMessage_), "%s", message);
+}
+
+int lexiconSetup() {
+  server.on("/lexicon", HTTP_GET, handleLixiconIndex);
+  server.on("/lexicon_cmd", HTTP_GET, handleLixiconCommand);
+  server.on("/lexicon_rc5", HTTP_GET, handleLixiconRC5Command);
+
+  const int lexiconResult = g_lexicon.begin() ? 0 : -1;
+  const int azurResult = azur840Setup();
+  return (lexiconResult == 0 && azurResult == 0) ? 0 : -1;
+}
+
+void handleLixiconIndex() {
+  if (!g_fsReady) {
+    g_fsReady = LEXICON_FS.begin();
+  }
+
+  if (!g_fsReady) {
+    server.send(500, "text/plain", "LittleFS mount failed");
+    return;
+  }
+
+  File f = LEXICON_FS.open("/lexicon.html", FILE_READ);
+  if (!f) {
+    server.send(404, "text/plain", "File not found");
+    return;
+  }
+
+  sendCorsHeaders();
+  server.streamFile(f, "text/html");
+  f.close();
+}
+
+int getIntFromHexArg(const String &argName) {
+  uint8_t value = 0;
+  if (parseHexByteArg(argName, value)) {
+    return value;
+  }
+  return 0;
+}
+
+void handleLixiconCommand() {
+  uint8_t zone = 0;
+  uint8_t command = 0;
+
+  if (!parseHexByteArg("zone", zone) || !parseHexByteArg("command", command)) {
+    server.send(400, "text/plain", "Missing or invalid zone/command (hex byte expected)");
+    return;
+  }
+
+  const String data = server.hasArg("data") ? server.arg("data") : "";
+  String response;
+  uint8_t answerCode = 0;
+  if (!g_lexicon.sendCommand(zone, command, data, response, answerCode)) {
+    server.send(502, "text/plain", g_lexicon.lastErrorMessage());
+    return;
+  }
+
+  char answerHex[3];
+  snprintf(answerHex, sizeof(answerHex), "%02X", answerCode);
+  server.send(200, "text/plain", String("AC=") + answerHex + " DATA=" + response);
+}
+
+void handleLixiconRC5Command() {
+  uint8_t zone = 0;
+  uint8_t command1 = 0;
+  uint8_t command2 = 0;
+
+  if (!parseHexByteArg("zone", zone) || !parseHexByteArg("command1", command1) || !parseHexByteArg("command2", command2)) {
+    server.send(400, "text/plain", "Missing or invalid RC5 args (hex bytes expected)");
+    return;
+  }
+
+  String response;
+  uint8_t answerCode = 0;
+  if (!g_lexicon.sendRc5(zone, command1, command2, response, answerCode)) {
+    server.send(502, "text/plain", g_lexicon.lastErrorMessage());
+    return;
+  }
+
+  char answerHex[3];
+  snprintf(answerHex, sizeof(answerHex), "%02X", answerCode);
+  server.send(200, "text/plain", String("AC=") + answerHex + " RC5=" + response);
 }
