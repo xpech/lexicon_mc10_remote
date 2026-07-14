@@ -1,5 +1,8 @@
 #include <azur840.h>
 
+#include <FS.h>
+#include <LittleFS.h>
+
 #define AZUR840_RX GPIO_NUM_16
 #define AZUR840_TX GPIO_NUM_17
 
@@ -18,6 +21,7 @@ constexpr size_t kAzurMaxCommandDataChars = 10;
 EspSoftwareSerial::UART g_azurSerial;
 bool g_azurReady = false;
 uint32_t g_azurBaud = 9600;
+bool g_azurFsReady = false;
 
 String bytesToHex(const uint8_t *buffer, size_t len) {
   const char *hex = "0123456789ABCDEF";
@@ -205,9 +209,35 @@ String parseAzurFrameAscii(const String &ascii) {
 } // namespace
 
 int azur840Setup() {
+  server.on("/azur840", HTTP_GET, handleAzur840Index);
+  server.on("/azur840.html", HTTP_GET, handleAzur840Index);
   server.on("/azur840_api", HTTP_GET, handleAzur840Api);
   server.on("/azur840_api", HTTP_POST, handleAzur840Api);
   return 0;
+}
+
+void handleAzur840Index() {
+  if (!g_azurFsReady) {
+    g_azurFsReady = LittleFS.begin();
+  }
+
+  if (!g_azurFsReady) {
+    server.send(500, "text/plain", "LittleFS mount failed");
+    return;
+  }
+
+  File f = LittleFS.open("/azur.html", FILE_READ);
+  if (!f) {
+    server.send(404, "text/plain", "File not found");
+    return;
+  }
+
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  server.sendHeader("Cache-Control", "no-cache");
+  server.streamFile(f, "text/html");
+  f.close();
 }
 
 void handleAzur840Api() {

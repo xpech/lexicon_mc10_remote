@@ -10,6 +10,7 @@
 #endif
 
 int azur840Setup();
+void handleAzur840Index();
 void handleAzur840Api();
 
 #endif // AZUR840_H

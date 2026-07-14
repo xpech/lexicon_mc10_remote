@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Coolhome Azur 840</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f3efe8;
+      --card: #fffdfa;
+      --text: #1e2728;
+      --muted: #5f6f73;
+      --brand: #12355b;
+      --brand-2: #2d6a8e;
+      --ok: #0f8c74;
+      --warn: #b3471f;
+      --danger: #b42318;
+      --border: #d8d2c8;
+      --shadow: 0 10px 30px rgba(20, 25, 20, 0.14);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Sora", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(76, 139, 245, 0.20), transparent 34%),
+        radial-gradient(circle at 92% 14%, rgba(255, 164, 110, 0.25), transparent 30%),
+        linear-gradient(180deg, var(--bg) 0%, #edf5f7 100%);
+      padding: 14px;
+    }
+
+    .wrap {
+      max-width: 1020px;
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      color: #f4fbff;
+      border-radius: calc(var(--radius) + 4px);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: rgba(245, 251, 255, 0.9);
+      font-size: 0.88rem;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .section-title {
+      margin-top: 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .badge {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      padding: 5px 9px;
+      border: 1px solid #9cc8e4;
+      background: #e6f4ff;
+      color: #0d4773;
+    }
+
+    .grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .btn {
+      border: 1px solid #b3cddd;
+      background: #f9fdff;
+      color: #0f354f;
+      border-radius: 12px;
+      min-height: 46px;
+      padding: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: transform 130ms ease, background 130ms ease;
+    }
+
+    .btn:active { transform: translateY(1px) scale(0.99); }
+    .btn.primary { background: linear-gradient(145deg, #1f5e92, #2d6a8e); color: #f4fbff; border-color: transparent; }
+    .btn.warn { background: linear-gradient(145deg, #c0592d, #b3471f); color: #fff8f2; border-color: transparent; }
+
+    .form {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .form input,
+    .form select {
+      width: 100%;
+      border: 1px solid #b6c7d0;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.88rem;
+      font-family: "IBM Plex Mono", monospace;
+      background: #fff;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .log {
+      margin-top: 10px;
+      border: 1px solid #d5dde3;
+      border-radius: 12px;
+      background: #f4f9fd;
+      padding: 8px;
+      min-height: 130px;
+      max-height: 300px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 6px;
+    }
+
+    .line {
+      border-radius: 9px;
+      padding: 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .line.ok { border: 1px solid #9fd6c8; background: #e6f8f2; color: #0a5744; }
+    .line.err { border: 1px solid #efb3b3; background: #ffefef; color: #7d2222; }
+    .line.info { border: 1px solid #b9d3e8; background: #eef6fd; color: #194b73; }
+    .line.decode { border: 1px solid #d4c3ef; background: #f5f0ff; color: #4a2b78; }
+
+    .state-grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .state-card {
+      border: 1px solid #cad8e2;
+      border-radius: 10px;
+      background: #f7fbff;
+      padding: 8px;
+    }
+
+    .state-label {
+      font-size: 0.72rem;
+      color: #5f7284;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .state-value {
+      margin-top: 4px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.86rem;
+      color: #163f61;
+      font-weight: 600;
+    }
+
+    .poll-row {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .poll-select {
+      border: 1px solid #b6c7d0;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.82rem;
+      font-family: "IBM Plex Mono", monospace;
+      background: #fff;
+    }
+
+    .catalog {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr;
+    }
+
+    .cmd-card {
+      border: 1px solid #c9d6de;
+      border-radius: 12px;
+      background: #f7fbff;
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .cmd-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cmd-code {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.76rem;
+      border: 1px solid #9ec2d8;
+      background: #e9f4fc;
+      color: #12456a;
+      border-radius: 999px;
+      padding: 3px 8px;
+    }
+
+    .cmd-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #1f3f58;
+    }
+
+    .cmd-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    .cmd-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini {
+      min-height: 34px;
+      padding: 7px 10px;
+      font-size: 0.78rem;
+      border-radius: 9px;
+    }
+
+    @media (min-width: 860px) {
+      body { padding: 20px; }
+      .wrap { grid-template-columns: 1fr 1fr; }
+      .hero, .status { grid-column: 1 / -1; }
+      .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Azur 840 RS232</h1>
+      <p>Commandes rapides, mode protocole structure et mode brut pour diagnostic.</p>
+    </section>
+
+    <section class="panel status">
+      <div class="row">
+        <h2>Etat lien serie</h2>
+        <span class="badge" id="statusBadge">READY</span>
+      </div>
+      <p class="muted" id="routeInfo">Route: /azur840_api</p>
+      <p class="muted" id="decodedInfo">Decodeur: en attente de trame</p>
+      <div class="poll-row">
+        <button type="button" class="btn mini" id="togglePoll">Polling: OFF</button>
+        <label class="muted" for="pollInterval">Intervalle</label>
+        <select id="pollInterval" class="poll-select" title="Polling interval" aria-label="Polling interval">
+          <option value="5000">5s</option>
+          <option value="10000" selected>10s</option>
+          <option value="15000">15s</option>
+          <option value="30000">30s</option>
+        </select>
+      </div>
+      <div class="state-grid" id="stateGrid">
+        <div class="state-card"><div class="state-label">Power</div><div class="state-value" id="stPower">Unknown</div></div>
+        <div class="state-card"><div class="state-label">Mute</div><div class="state-value" id="stMute">Unknown</div></div>
+        <div class="state-card"><div class="state-label">Volume</div><div class="state-value" id="stVolume">Unknown</div></div>
+        <div class="state-card"><div class="state-label">Input</div><div class="state-value" id="stInput">Unknown</div></div>
+        <div class="state-card"><div class="state-label">Balance</div><div class="state-value" id="stBalance">Unknown</div></div>
+        <div class="state-card"><div class="state-label">Direct</div><div class="state-value" id="stDirect">Unknown</div></div>
+      </div>
+      <div class="log" id="log"></div>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <h2>Commandes rapides</h2>
+        <span class="muted">Group 1</span>
+      </div>
+      <div class="grid" id="quick"></div>
+
+      <h2 class="section-title">Inputs</h2>
+      <div class="grid cols-3" id="inputs"></div>
+
+      <h2 class="section-title">Volume</h2>
+      <div class="grid" id="volume"></div>
+
+      <h2 class="section-title">Reglages</h2>
+      <div class="grid" id="settings"></div>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <h2>Catalogue Group 1 (01-26)</h2>
+        <span class="muted">Presets selon doc RS232</span>
+      </div>
+      <div class="catalog" id="catalog"></div>
+    </section>
+
+    <section class="panel">
+      <div class="row">
+        <h2>Mode protocole</h2>
+        <span class="muted">#G,NN,DATA</span>
+      </div>
+      <div class="form">
+        <input id="group" value="1" placeholder="group 1..5">
+        <input id="command" value="11" placeholder="command 00..99">
+        <input id="data" class="full" value="1" placeholder="data (max 10 chars)">
+        <input id="baud" value="9600" placeholder="baud">
+        <input id="timeout" value="1200" placeholder="timeout ms">
+        <button id="sendStructured" class="btn primary full" type="button">Envoyer commande structuree</button>
+      </div>
+
+      <h2 class="section-title">Mode brut</h2>
+      <div class="form">
+        <input id="tx" class="full" placeholder="tx ascii ex: #1,11,1">
+        <input id="txHex" class="full" placeholder="tx_hex ex: 23312C31312C31">
+        <select id="suffix" title="Suffix" aria-label="Suffix">
+          <option value="cr" selected>suffix CR</option>
+          <option value="lf">suffix LF</option>
+          <option value="crlf">suffix CRLF</option>
+          <option value="none">suffix none</option>
+        </select>
+        <select id="response" title="Response mode" aria-label="Response mode">
+          <option value="ascii" selected>response ascii</option>
+          <option value="hex">response hex</option>
+        </select>
+        <button id="sendRaw" class="btn full" type="button">Envoyer brut</button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const statusBadge = document.getElementById('statusBadge');
+      const routeInfo = document.getElementById('routeInfo');
+      const decodedInfo = document.getElementById('decodedInfo');
+      const log = document.getElementById('log');
+
+      const stateEls = {
+        power: document.getElementById('stPower'),
+        mute: document.getElementById('stMute'),
+        volume: document.getElementById('stVolume'),
+        input: document.getElementById('stInput'),
+        balance: document.getElementById('stBalance'),
+        direct: document.getElementById('stDirect')
+      };
+
+      const azurState = {
+        power: 'Unknown',
+        mute: 'Unknown',
+        volume: 'Unknown',
+        input: 'Unknown',
+        balance: 'Unknown',
+        direct: 'Unknown'
+      };
+
+      let pollEnabled = false;
+      let pollTimer = null;
+      let pollIndex = 0;
+      let inFlight = false;
+
+      const pollPlan = [
+        { group: '2', command: '1', data: '' },
+        { group: '2', command: '2', data: '' }
+      ];
+
+      const quickButtons = [
+        { label: 'Power On', g: 1, c: 11, d: '1', cls: 'primary' },
+        { label: 'Standby', g: 1, c: 11, d: '0', cls: 'warn' },
+        { label: 'Mute On', g: 1, c: 12, d: '1' },
+        { label: 'Mute Off', g: 1, c: 12, d: '0' },
+        { label: 'Direct On', g: 1, c: 26, d: '1' },
+        { label: 'Direct Off', g: 1, c: 26, d: '0' }
+      ];
+
+      const inputButtons = [
+        { label: 'Input 1', g: 1, c: 1, d: '' },
+        { label: 'Input 2', g: 1, c: 2, d: '' },
+        { label: 'Input 3', g: 1, c: 3, d: '' },
+        { label: 'Input 4', g: 1, c: 4, d: '' },
+        { label: 'Input 5', g: 1, c: 5, d: '' },
+        { label: 'Input 6', g: 1, c: 6, d: '' },
+        { label: 'Input 7', g: 1, c: 7, d: '' },
+        { label: 'Input Up', g: 1, c: 9, d: '' },
+        { label: 'Input Down', g: 1, c: 10, d: '' }
+      ];
+
+      const volumeButtons = [
+        { label: 'Vol +', g: 1, c: 14, d: '' },
+        { label: 'Vol -', g: 1, c: 15, d: '' },
+        { label: 'Vol Stop', g: 1, c: 16, d: '' },
+        { label: 'Set Vol 20', g: 1, c: 13, d: '20' }
+      ];
+
+      const settingButtons = [
+        { label: 'Tape On', g: 1, c: 8, d: '1' },
+        { label: 'Tape Off', g: 1, c: 8, d: '0' },
+        { label: 'Balance N', g: 1, c: 17, d: '08' },
+        { label: 'Balance <-', g: 1, c: 19, d: '' },
+        { label: 'Balance ->', g: 1, c: 18, d: '' },
+        { label: 'LCD Bright', g: 1, c: 20, d: '2' },
+        { label: 'Speaker AB', g: 1, c: 21, d: '1' },
+        { label: 'A-BUS 7', g: 1, c: 23, d: '7' },
+        { label: 'Bass 15', g: 1, c: 24, d: '15' },
+        { label: 'Treble 15', g: 1, c: 25, d: '15' }
+      ];
+
+      const commandCatalog = [
+        { c: '01', label: 'Main Input Select 1', d: '', note: 'No data' },
+        { c: '02', label: 'Main Input Select 2', d: '', note: 'No data' },
+        { c: '03', label: 'Main Input Select 3', d: '', note: 'No data' },
+        { c: '04', label: 'Main Input Select 4', d: '', note: 'No data' },
+        { c: '05', label: 'Main Input Select 5', d: '', note: 'No data' },
+        { c: '06', label: 'Main Input Select 6', d: '', note: 'No data' },
+        { c: '07', label: 'Main Input Select 7', d: '', note: 'No data' },
+        { c: '08', label: 'Tape Monitor On', d: '1', note: '0 Off / 1 On' },
+        { c: '09', label: 'Main Input Up', d: '', note: 'No data' },
+        { c: '10', label: 'Main Input Down', d: '', note: 'No data' },
+        { c: '11', label: 'Power On', d: '1', note: '0 Standby / 1 On' },
+        { c: '12', label: 'Mute On', d: '1', note: '0 Off / 1 On' },
+        { c: '13', label: 'Goto Volume', d: '20', note: '00..72 or 96 by model' },
+        { c: '14', label: 'Volume Up', d: '', note: 'No data' },
+        { c: '15', label: 'Volume Down', d: '', note: 'No data' },
+        { c: '16', label: 'Volume Stop', d: '', note: 'No data' },
+        { c: '17', label: 'Set Balance', d: '08', note: '00..16, 08 neutral' },
+        { c: '18', label: 'Balance Right', d: '', note: 'No data' },
+        { c: '19', label: 'Balance Left', d: '', note: 'No data' },
+        { c: '20', label: 'LCD Brightness', d: '2', note: '0 Off / 1 Dim / 2 Bright' },
+        { c: '21', label: 'Speaker Select', d: '1', note: '0 A / 1 AB / 2 B' },
+        { c: '23', label: 'Abus Input Select', d: '7', note: '1..8' },
+        { c: '24', label: 'Set Bass', d: '15', note: '00..30, 15 neutral' },
+        { c: '25', label: 'Set Treble', d: '15', note: '00..30, 15 neutral' },
+        { c: '26', label: 'Set Direct On', d: '1', note: '0 Off / 1 On' }
+      ];
+
+      function addLog(text, type) {
+        const line = document.createElement('div');
+        line.className = 'line ' + (type || 'info');
+        const now = new Date();
+        const ts = now.toTimeString().slice(0, 8);
+        line.textContent = '[' + ts + '] ' + text;
+        log.prepend(line);
+      }
+
+      function setStatus(text, kind) {
+        statusBadge.textContent = text;
+        if (kind === 'err') {
+          statusBadge.style.background = '#ffeded';
+          statusBadge.style.borderColor = '#efb8b8';
+          statusBadge.style.color = '#8b2020';
+        } else if (kind === 'busy') {
+          statusBadge.style.background = '#fff4e3';
+          statusBadge.style.borderColor = '#f0cd9b';
+          statusBadge.style.color = '#8a4f09';
+        } else {
+          statusBadge.style.background = '#e7f6ff';
+          statusBadge.style.borderColor = '#a9cde7';
+          statusBadge.style.color = '#14486f';
+        }
+      }
+
+      function explainParsedFrame(group, command, data) {
+        const group4 = {
+          '01': 'Main input source changed',
+          '02': 'Main input source changed',
+          '03': 'Main input source changed',
+          '04': 'Main input source changed',
+          '05': 'Main input source changed',
+          '06': 'Main input source changed',
+          '07': 'Main input source changed',
+          '08': 'Tape monitor changed',
+          '11': 'Power state changed',
+          '12': 'Mute state changed',
+          '13': 'Volume changed',
+          '14': 'Volume increasing',
+          '15': 'Volume decreasing',
+          '16': 'Volume stopped',
+          '17': 'Balance changed',
+          '20': 'LCD brightness changed',
+          '21': 'Speaker selection changed',
+          '22': 'Headphones in/out',
+          '23': 'A-BUS input source changed',
+          '24': 'Bass level changed',
+          '25': 'Treble level changed',
+          '26': 'Direct state changed'
+        };
+
+        const group5 = {
+          '01': 'Overload error',
+          '02': 'DC offset error',
+          '03': 'Over temperature error',
+          '04': 'Clipping error',
+          '05': 'Mains fail',
+          '06': 'Speaker fail',
+          '07': 'Command group unknown',
+          '08': 'Command number unknown',
+          '09': 'Command data error'
+        };
+
+        const cmd2 = String(command).padStart(2, '0');
+        if (group === '4') {
+          const label = group4[cmd2] || 'Control update';
+          return label + (data ? ' (data=' + data + ')' : '');
+        }
+
+        if (group === '5') {
+          return group5[cmd2] || 'Azur error message';
+        }
+
+        if (group === '3') {
+          return 'Setup reply' + (data ? ' (data=' + data + ')' : '');
+        }
+
+        return '';
+      }
+
+      function decodeResponseText(responseText) {
+        const lines = responseText.split('\n');
+        for (let i = 0; i < lines.length; i += 1) {
+          const m = lines[i].match(/^RX_PARSED\s+group=(\d+)\s+command=(\d+)\s+data=(.*)$/);
+          if (!m) {
+            continue;
+          }
+          updateStateFromFrame(m[1], m[2], m[3] || '');
+          const detail = explainParsedFrame(m[1], m[2], m[3] || '');
+          if (detail) {
+            decodedInfo.textContent = 'Decodeur: ' + detail;
+            addLog('DECODE ' + detail, 'decode');
+          }
+        }
+      }
+
+      function setPollingUi() {
+        const btn = document.getElementById('togglePoll');
+        btn.textContent = pollEnabled ? 'Polling: ON' : 'Polling: OFF';
+        btn.className = pollEnabled ? 'btn mini primary' : 'btn mini';
+      }
+
+      function stopPolling() {
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+        pollEnabled = false;
+        setPollingUi();
+        addLog('Polling stoppe', 'info');
+      }
+
+      function startPolling() {
+        const intervalMs = Number(document.getElementById('pollInterval').value || '10000');
+        if (!intervalMs || intervalMs < 2000) {
+          addLog('Intervalle polling invalide', 'err');
+          return;
+        }
+
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
+        }
+
+        pollEnabled = true;
+        setPollingUi();
+        addLog('Polling actif toutes les ' + Math.round(intervalMs / 1000) + 's', 'info');
+
+        pollTimer = setInterval(function () {
+          if (!pollEnabled || inFlight) {
+            return;
+          }
+
+          const next = pollPlan[pollIndex % pollPlan.length];
+          pollIndex += 1;
+          callApi({
+            group: next.group,
+            command: next.command,
+            data: next.data,
+            baud: document.getElementById('baud').value.trim() || '9600',
+            timeout: document.getElementById('timeout').value.trim() || '1200',
+            response: 'ascii'
+          }, true);
+        }, intervalMs);
+      }
+
+      function renderState() {
+        stateEls.power.textContent = azurState.power;
+        stateEls.mute.textContent = azurState.mute;
+        stateEls.volume.textContent = azurState.volume;
+        stateEls.input.textContent = azurState.input;
+        stateEls.balance.textContent = azurState.balance;
+        stateEls.direct.textContent = azurState.direct;
+      }
+
+      function inputNameFromCommand(cmd2) {
+        if (cmd2 >= 1 && cmd2 <= 7) {
+          return 'Input ' + cmd2;
+        }
+        return 'Unknown';
+      }
+
+      function updateStateFromFrame(group, command, data) {
+        if (group !== '4') {
+          return;
+        }
+
+        const cmd2 = String(command).padStart(2, '0');
+        const n = Number(data);
+
+        if (cmd2 >= '01' && cmd2 <= '07') {
+          azurState.input = inputNameFromCommand(Number(cmd2));
+        } else if (cmd2 === '08') {
+          azurState.input = data === '1' ? 'Tape Monitor On' : 'Tape Monitor Off';
+        } else if (cmd2 === '11') {
+          azurState.power = data === '1' ? 'On' : 'Standby';
+        } else if (cmd2 === '12') {
+          azurState.mute = data === '1' ? 'On' : 'Off';
+        } else if (cmd2 === '13') {
+          azurState.volume = Number.isNaN(n) ? data : String(n);
+        } else if (cmd2 === '14') {
+          azurState.volume = 'Increasing';
+        } else if (cmd2 === '15') {
+          azurState.volume = 'Decreasing';
+        } else if (cmd2 === '16') {
+          azurState.volume = data ? ('Stopped @ ' + data) : 'Stopped';
+        } else if (cmd2 === '17') {
+          azurState.balance = data || 'Changed';
+        } else if (cmd2 === '23') {
+          azurState.input = data ? ('A-BUS ' + data) : 'A-BUS';
+        } else if (cmd2 === '26') {
+          azurState.direct = data === '1' ? 'On' : 'Off';
+        }
+
+        renderState();
+      }
+
+      async function callApi(params, isPollingRequest) {
+        const qs = new URLSearchParams(params);
+        const route = '/azur840_api?' + qs.toString();
+        routeInfo.textContent = 'Route: ' + route;
+        setStatus(isPollingRequest ? 'POLL' : 'TX', 'busy');
+        if (!isPollingRequest) {
+          addLog('TX ' + qs.toString(), 'info');
+        }
+
+        inFlight = true;
+
+        try {
+          const response = await fetch(route);
+          const text = await response.text();
+          if (!response.ok) {
+            throw new Error(text || ('HTTP ' + response.status));
+          }
+          setStatus('OK', 'ok');
+          if (!isPollingRequest) {
+            addLog(text, 'ok');
+          } else {
+            addLog('POLL OK ' + text.split('\n')[0], 'info');
+          }
+          decodeResponseText(text);
+        } catch (err) {
+          setStatus('ERROR', 'err');
+          addLog(err.message || String(err), 'err');
+        } finally {
+          inFlight = false;
+        }
+      }
+
+      function buildButton(item, onClick) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn' + (item.cls ? ' ' + item.cls : '');
+        btn.textContent = item.label;
+        btn.addEventListener('click', onClick);
+        return btn;
+      }
+
+      const quickRoot = document.getElementById('quick');
+      quickButtons.forEach(function (item) {
+        quickRoot.appendChild(buildButton(item, function () {
+          callApi({ group: item.g, command: item.c, data: item.d, baud: '9600', timeout: '1200', response: 'ascii' });
+        }));
+      });
+
+      const inputsRoot = document.getElementById('inputs');
+      inputButtons.forEach(function (item) {
+        inputsRoot.appendChild(buildButton(item, function () {
+          callApi({ group: item.g, command: item.c, data: item.d, baud: '9600', timeout: '1200', response: 'ascii' });
+        }));
+      });
+
+      const volumeRoot = document.getElementById('volume');
+      volumeButtons.forEach(function (item) {
+        volumeRoot.appendChild(buildButton(item, function () {
+          callApi({ group: item.g, command: item.c, data: item.d, baud: '9600', timeout: '1200', response: 'ascii' });
+        }));
+      });
+
+      const settingsRoot = document.getElementById('settings');
+      settingButtons.forEach(function (item) {
+        settingsRoot.appendChild(buildButton(item, function () {
+          callApi({ group: item.g, command: item.c, data: item.d, baud: '9600', timeout: '1200', response: 'ascii' });
+        }));
+      });
+
+      const catalogRoot = document.getElementById('catalog');
+      commandCatalog.forEach(function (cmd) {
+        const card = document.createElement('div');
+        card.className = 'cmd-card';
+
+        const head = document.createElement('div');
+        head.className = 'cmd-head';
+
+        const title = document.createElement('div');
+        title.className = 'cmd-title';
+        title.textContent = cmd.label;
+
+        const code = document.createElement('span');
+        code.className = 'cmd-code';
+        code.textContent = 'G1 C' + cmd.c;
+
+        head.appendChild(title);
+        head.appendChild(code);
+
+        const note = document.createElement('div');
+        note.className = 'cmd-note';
+        note.textContent = cmd.note;
+
+        const actions = document.createElement('div');
+        actions.className = 'cmd-actions';
+
+        const prefillBtn = document.createElement('button');
+        prefillBtn.type = 'button';
+        prefillBtn.className = 'btn mini';
+        prefillBtn.textContent = 'Prefill';
+        prefillBtn.addEventListener('click', function () {
+          document.getElementById('group').value = '1';
+          document.getElementById('command').value = String(parseInt(cmd.c, 10));
+          document.getElementById('data').value = cmd.d;
+          addLog('Prefill G1 C' + cmd.c + ' data=' + cmd.d, 'info');
+        });
+
+        const sendBtn = document.createElement('button');
+        sendBtn.type = 'button';
+        sendBtn.className = 'btn mini primary';
+        sendBtn.textContent = 'Envoyer';
+        sendBtn.addEventListener('click', function () {
+          callApi({
+            group: '1',
+            command: String(parseInt(cmd.c, 10)),
+            data: cmd.d,
+            baud: document.getElementById('baud').value.trim(),
+            timeout: document.getElementById('timeout').value.trim(),
+            response: 'ascii'
+          });
+        });
+
+        actions.appendChild(prefillBtn);
+        actions.appendChild(sendBtn);
+
+        card.appendChild(head);
+        card.appendChild(note);
+        card.appendChild(actions);
+        catalogRoot.appendChild(card);
+      });
+
+      document.getElementById('sendStructured').addEventListener('click', function () {
+        callApi({
+          group: document.getElementById('group').value.trim(),
+          command: document.getElementById('command').value.trim(),
+          data: document.getElementById('data').value,
+          baud: document.getElementById('baud').value.trim(),
+          timeout: document.getElementById('timeout').value.trim(),
+          response: 'ascii'
+        });
+      });
+
+      document.getElementById('sendRaw').addEventListener('click', function () {
+        callApi({
+          tx: document.getElementById('tx').value,
+          tx_hex: document.getElementById('txHex').value,
+          suffix: document.getElementById('suffix').value,
+          response: document.getElementById('response').value,
+          baud: document.getElementById('baud').value.trim(),
+          timeout: document.getElementById('timeout').value.trim()
+        });
+      });
+
+      document.getElementById('togglePoll').addEventListener('click', function () {
+        if (pollEnabled) {
+          stopPolling();
+        } else {
+          startPolling();
+        }
+      });
+
+      document.getElementById('pollInterval').addEventListener('change', function () {
+        if (pollEnabled) {
+          startPolling();
+        }
+      });
+
+      addLog('Interface Azur 840 ready', 'ok');
+      setStatus('READY', 'ok');
+      renderState();
+      setPollingUi();
+    })();
+  </script>
+</body>
+</html>
