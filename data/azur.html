@@ -34,7 +34,55 @@
         radial-gradient(circle at 8% 8%, rgba(76, 139, 245, 0.20), transparent 34%),
         radial-gradient(circle at 92% 14%, rgba(255, 164, 110, 0.25), transparent 30%),
         linear-gradient(180deg, var(--bg) 0%, #edf5f7 100%);
-      padding: 14px;
+      padding: 88px 14px 14px;
+    }
+
+    .top-panel {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 30;
+      background: linear-gradient(135deg, #0f3b60, #1c5a85);
+      border: 1px solid #2a6e9d;
+      border-radius: 14px;
+      box-shadow: 0 8px 26px rgba(10, 30, 45, 0.24);
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .top-btn {
+      border: 1px solid #8bb8d7;
+      background: #f8fcff;
+      color: #0e3654;
+      border-radius: 10px;
+      min-height: 40px;
+      padding: 8px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: transform 120ms ease;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .top-btn:active {
+      transform: translateY(1px) scale(0.99);
+    }
+
+    .top-btn.warn {
+      border-color: transparent;
+      background: linear-gradient(145deg, #c55b2d, #b3471f);
+      color: #fff7f2;
+    }
+
+    .top-btn.primary {
+      border-color: transparent;
+      background: linear-gradient(145deg, #1f67a0, #2d6a8e);
+      color: #f4fbff;
     }
 
     .wrap {
@@ -285,7 +333,13 @@
     }
 
     @media (min-width: 860px) {
-      body { padding: 20px; }
+      body { padding: 98px 20px 20px; }
+      .top-panel {
+        left: 20px;
+        right: 20px;
+        max-width: 1020px;
+        margin: 0 auto;
+      }
       .wrap { grid-template-columns: 1fr 1fr; }
       .hero, .status { grid-column: 1 / -1; }
       .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -293,6 +347,13 @@
   </style>
 </head>
 <body>
+  <div class="top-panel">
+    <button id="topPowerOn" type="button" class="top-btn primary">Power On</button>
+    <button id="topPowerOff" type="button" class="top-btn warn">Power Off</button>
+    <button id="topVolUp" type="button" class="top-btn">Volume +</button>
+    <button id="topVolDown" type="button" class="top-btn">Volume -</button>
+  </div>
+
   <main class="wrap">
     <section class="hero">
       <h1>Azur 840 RS232</h1>
@@ -414,6 +475,7 @@
       let pollTimer = null;
       let pollIndex = 0;
       let inFlight = false;
+      let activeVolumeHold = null;
 
       const pollPlan = [
         { group: '2', command: '1', data: '' },
@@ -719,6 +781,49 @@
         }
       }
 
+      function sendRawFrame(frame) {
+        return callApi({
+          tx: frame,
+          suffix: 'cr',
+          response: 'ascii',
+          baud: document.getElementById('baud').value.trim() || '9600',
+          timeout: document.getElementById('timeout').value.trim() || '1200'
+        }, false);
+      }
+
+      function beginVolumeHold(direction) {
+        if (activeVolumeHold) {
+          return;
+        }
+        activeVolumeHold = direction;
+        if (direction === 'up') {
+          sendRawFrame('#1,14,');
+        } else if (direction === 'down') {
+          sendRawFrame('#1,15,');
+        }
+      }
+
+      function stopVolumeHold() {
+        if (!activeVolumeHold) {
+          return;
+        }
+        activeVolumeHold = null;
+        sendRawFrame('#1,16,');
+      }
+
+      function bindHoldButton(buttonEl, direction) {
+        buttonEl.addEventListener('pointerdown', function (evt) {
+          evt.preventDefault();
+          beginVolumeHold(direction);
+        });
+        buttonEl.addEventListener('pointerup', function (evt) {
+          evt.preventDefault();
+          stopVolumeHold();
+        });
+        buttonEl.addEventListener('pointercancel', stopVolumeHold);
+        buttonEl.addEventListener('pointerleave', stopVolumeHold);
+      }
+
       function buildButton(item, onClick) {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -852,6 +957,18 @@
           startPolling();
         }
       });
+
+      document.getElementById('topPowerOn').addEventListener('click', function () {
+        callApi({ group: '1', command: '11', data: '1', baud: '9600', timeout: '1200', response: 'ascii' });
+      });
+
+      document.getElementById('topPowerOff').addEventListener('click', function () {
+        callApi({ group: '1', command: '11', data: '0', baud: '9600', timeout: '1200', response: 'ascii' });
+      });
+
+      bindHoldButton(document.getElementById('topVolUp'), 'up');
+      bindHoldButton(document.getElementById('topVolDown'), 'down');
+      window.addEventListener('pointerup', stopVolumeHold);
 
       addLog('Interface Azur 840 ready', 'ok');
       setStatus('READY', 'ok');
