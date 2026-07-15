@@ -240,6 +240,10 @@ void handleAzur840Index() {
   f.close();
 }
 
+int32_t volume = -1;
+
+
+
 void handleAzur840Api() {
   String txAscii = server.hasArg("tx") ? server.arg("tx") : "";
   const String txHex = server.hasArg("tx_hex") ? server.arg("tx_hex") : "";
@@ -357,4 +361,5 @@ void handleAzur840Api() {
     body += "\n" + parsed;
   }
   server.send(200, "text/plain", body);
+
 }

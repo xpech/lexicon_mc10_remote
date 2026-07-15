@@ -48,11 +48,69 @@ bool parseHexByteArg(const String &name, uint8_t &value) {
   return true;
 }
 
+bool parseHexDataArg(const String &name, String &data) {
+  if (!server.hasArg(name)) {
+    return false;
+  }
+
+  String raw = server.arg(name);
+  raw.replace(" ", "");
+  raw.replace("-", "");
+  raw.replace(":", "");
+
+  if (raw.length() == 0 || (raw.length() % 2) != 0) {
+    return false;
+  }
+
+  data = "";
+  data.reserve(raw.length() / 2);
+
+  for (size_t i = 0; i < raw.length(); i += 2) {
+    const char hi = raw.charAt(i);
+    const char lo = raw.charAt(i + 1);
+    if (!isxdigit(static_cast<unsigned char>(hi)) || !isxdigit(static_cast<unsigned char>(lo))) {
+      return false;
+    }
+
+    const String byteText = raw.substring(i, i + 2);
+    char *endPtr = nullptr;
+    const unsigned long parsed = strtoul(byteText.c_str(), &endPtr, 16);
+    if (endPtr == byteText.c_str() || *endPtr != '\0' || parsed > 0xFFUL) {
+      return false;
+    }
+
+    data += static_cast<char>(parsed);
+  }
+
+  return true;
+}
+
 void sendCorsHeaders() {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   server.sendHeader("Cache-Control", "no-cache");
+}
+
+void handleSharedUiCss() {
+  if (!g_fsReady) {
+    g_fsReady = LEXICON_FS.begin();
+  }
+
+  if (!g_fsReady) {
+    server.send(500, "text/plain", "LittleFS mount failed");
+    return;
+  }
+
+  File f = LEXICON_FS.open("/shared-ui.css", FILE_READ);
+  if (!f) {
+    server.send(404, "text/plain", "File not found");
+    return;
+  }
+
+  sendCorsHeaders();
+  server.streamFile(f, "text/css");
+  f.close();
 }
 
 } // namespace
@@ -308,6 +366,7 @@ void LexiconComm::setError(ErrorCode code, const char *message) {
 
 int lexiconSetup() {
   server.on("/lexicon", HTTP_GET, handleLixiconIndex);
+  server.on("/shared-ui.css", HTTP_GET, handleSharedUiCss);
   server.on("/lexicon_cmd", HTTP_GET, handleLixiconCommand);
   server.on("/lexicon_rc5", HTTP_GET, handleLixiconRC5Command);
 
@@ -354,7 +413,16 @@ void handleLixiconCommand() {
     return;
   }
 
-  const String data = server.hasArg("data") ? server.arg("data") : "";
+  String data;
+  if (server.hasArg("datahex")) {
+    if (!parseHexDataArg("datahex", data)) {
+      server.send(400, "text/plain", "Invalid datahex (expected even-length hex bytes)");
+      return;
+    }
+  } else {
+    data = server.hasArg("data") ? server.arg("data") : "";
+  }
+
   String response;
   uint8_t answerCode = 0;
   if (!g_lexicon.sendCommand(zone, command, data, response, answerCode)) {

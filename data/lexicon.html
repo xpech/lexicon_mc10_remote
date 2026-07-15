@@ -7,328 +7,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #f4efe6;
-            --bg-accent: #ffe4b8;
-            --card: #fffdf8;
-            --text: #1f2d2f;
-            --muted: #5f6f71;
-            --brand: #005f73;
-            --brand-2: #0a9396;
-            --warn: #bb3e03;
-            --ok: #2a9d8f;
-            --danger: #ae2012;
-            --border: #d8d0c2;
-            --shadow: 0 10px 30px rgba(40, 40, 20, 0.12);
-            --radius: 18px;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: "Sora", "Trebuchet MS", sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at 8% 8%, rgba(255, 200, 120, 0.28), transparent 35%),
-                radial-gradient(circle at 92% 10%, rgba(10, 147, 150, 0.2), transparent 28%),
-                linear-gradient(180deg, var(--bg) 0%, #f1f5ed 100%);
-            padding: 16px 14px 28px;
-        }
-
-        .wrap {
-            max-width: 1080px;
-            margin: 0 auto;
-            display: grid;
-            gap: 14px;
-        }
-
-        .hero {
-            background: linear-gradient(135deg, rgba(0, 95, 115, 0.94), rgba(10, 147, 150, 0.9));
-            border-radius: calc(var(--radius) + 4px);
-            color: #f5fffb;
-            padding: 18px;
-            box-shadow: var(--shadow);
-            animation: slideIn 420ms ease-out;
-        }
-
-        .hero h1 {
-            margin: 0;
-            font-size: 1.28rem;
-            line-height: 1.15;
-            letter-spacing: 0.02em;
-            font-weight: 800;
-        }
-
-        .hero p {
-            margin: 9px 0 0;
-            color: rgba(244, 255, 252, 0.88);
-            font-size: 0.9rem;
-        }
-
-        .panel {
-            background: color-mix(in srgb, var(--card) 94%, var(--bg-accent));
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 14px;
-            animation: rise 380ms ease-out both;
-        }
-
-        .panel:nth-child(2) { animation-delay: 70ms; }
-        .panel:nth-child(3) { animation-delay: 120ms; }
-        .panel:nth-child(4) { animation-delay: 170ms; }
-
-        .row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .panel h2 {
-            margin: 0;
-            font-size: 1rem;
-            letter-spacing: 0.02em;
-        }
-
-        .section-title {
-            margin-top: 12px;
-        }
-
-        .muted {
-            color: var(--muted);
-            font-size: 0.85rem;
-        }
-
-        .badge {
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 0.74rem;
-            padding: 5px 9px;
-            border-radius: 999px;
-            border: 1px solid #9ecdc4;
-            background: #e6faf6;
-            color: #004f3f;
-            white-space: nowrap;
-        }
-
-        .zone-picker {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .zone-picker button {
-            border: 1px solid #74b5ac;
-            background: #f6fffc;
-            color: var(--brand);
-            padding: 11px 10px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.92rem;
-            cursor: pointer;
-        }
-
-        .zone-picker button.active {
-            background: var(--brand);
-            border-color: var(--brand);
-            color: #f3fffd;
-        }
-
-        .grid {
-            display: grid;
-            gap: 8px;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .grid.cols-3 {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .grid.cols-4 {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .action,
-        .chip,
-        .ghost-btn {
-            border: 1px solid #b8d7d0;
-            background: #fafffd;
-            color: #114145;
-            border-radius: 12px;
-            padding: 12px 10px;
-            font-family: "Sora", sans-serif;
-            font-size: 0.86rem;
-            font-weight: 600;
-            line-height: 1.25;
-            cursor: pointer;
-            transition: transform 140ms ease, background 140ms ease, box-shadow 140ms ease;
-            min-height: 48px;
-        }
-
-        .action:active,
-        .chip:active,
-        .ghost-btn:active {
-            transform: translateY(1px) scale(0.99);
-        }
-
-        .action.primary {
-            border-color: transparent;
-            background: linear-gradient(145deg, var(--brand), var(--brand-2));
-            color: #f1fffc;
-        }
-
-        .action.warn {
-            border-color: transparent;
-            background: linear-gradient(145deg, #c05018, #bb3e03);
-            color: #fff7f0;
-        }
-
-        .mono {
-            font-family: "IBM Plex Mono", monospace;
-        }
-
-        .dpad {
-            margin-top: 10px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            max-width: 360px;
-        }
-
-        .dpad .blank {
-            visibility: hidden;
-        }
-
-        .chips {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        details {
-            border: 1px solid #d8e7e2;
-            border-radius: 12px;
-            background: #fcfffe;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        summary {
-            list-style: none;
-            cursor: pointer;
-            padding: 11px 12px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            color: #0f4f56;
-            background: #f3fbf8;
-        }
-
-        details > div {
-            padding: 10px;
-            display: grid;
-            gap: 8px;
-        }
-
-        .form-grid {
-            display: grid;
-            gap: 8px;
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .form-grid input,
-        .form-grid select {
-            width: 100%;
-            border: 1px solid #b7cac7;
-            border-radius: 10px;
-            padding: 10px;
-            background: #ffffff;
-            font-size: 0.9rem;
-            color: #153135;
-            font-family: "IBM Plex Mono", monospace;
-        }
-
-        .full {
-            grid-column: 1 / -1;
-        }
-
-        .log {
-            margin-top: 10px;
-            border: 1px solid #d0ddd9;
-            border-radius: 12px;
-            background: #f5fbf9;
-            padding: 8px;
-            min-height: 110px;
-            max-height: 240px;
-            overflow: auto;
-            display: flex;
-            flex-direction: column-reverse;
-            gap: 6px;
-        }
-
-        .line {
-            border-radius: 9px;
-            padding: 8px;
-            font-size: 0.8rem;
-            font-family: "IBM Plex Mono", monospace;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        .line.ok { background: #e7faf0; color: #0f5132; border: 1px solid #91ddb9; }
-        .line.err { background: #ffefef; color: #7e1d1d; border: 1px solid #efb0b0; }
-        .line.info { background: #eef7ff; color: #194a76; border: 1px solid #b7d5f0; }
-
-        .footer {
-            text-align: center;
-            margin-top: 8px;
-            color: #567074;
-            font-size: 0.75rem;
-        }
-
-        @media (min-width: 860px) {
-            body {
-                padding: 22px;
-            }
-
-            .wrap {
-                grid-template-columns: 1.2fr 1fr;
-                align-items: start;
-            }
-
-            .hero,
-            .panel.status {
-                grid-column: 1 / -1;
-            }
-
-            .grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-
-            .chips {
-                grid-template-columns: repeat(4, minmax(0, 1fr));
-            }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    <link rel="stylesheet" href="/shared-ui.css">
 </head>
-<body>
+<body class="lexicon-page">
+    <div class="top-panel lexicon">
+        <button id="topZone1" type="button" class="top-btn">Zone 1</button>
+        <button id="topZone2" type="button" class="top-btn">Zone 2</button>
+        <button id="topLexiconPowerOn" type="button" class="top-btn primary">Power On</button>
+        <button id="topLexiconPowerOff" type="button" class="top-btn warn">Power Off</button>
+        <button id="topLexiconVolUp" type="button" class="top-btn volume-control volume-up">Vol +</button>
+        <button id="topLexiconVolDown" type="button" class="top-btn volume-control volume-down">Vol -</button>
+        <button id="toAzurPage" type="button" class="top-btn nav">&rarr; Azur</button>
+    </div>
+
     <main class="wrap">
         <section class="hero">
             <h1>Coolhome Lexicon</h1>
@@ -413,6 +104,8 @@
                 zone: "01"
             };
 
+            const topZone1 = document.getElementById("topZone1");
+            const topZone2 = document.getElementById("topZone2");
             const statusBadge = document.getElementById("statusBadge");
             const currentRoute = document.getElementById("currentRoute");
             const logEl = document.getElementById("log");
@@ -427,6 +120,7 @@
             ];
 
             const sourceActions = [
+                { label: "DAB", c1: "0x10", c2: "0x48" },
                 { label: "Radio", c1: "0x10", c2: "0x5B" },
                 { label: "Net", c1: "0x10", c2: "0x5C" },
                 { label: "CD", c1: "0x10", c2: "0x76" },
@@ -499,6 +193,45 @@
                 logEl.prepend(line);
             }
 
+            function extractZoneFromDirectResponse(text) {
+                if (!text) {
+                    return null;
+                }
+
+                const upper = String(text).toUpperCase();
+                let match = upper.match(/(?:ZN|ZONE)\s*=?\s*0*([12])\b/);
+                if (match) {
+                    return "0" + match[1];
+                }
+
+                match = upper.match(/DATA=([^\r\n]*)/);
+                if (!match) {
+                    return null;
+                }
+
+                const payload = match[1].trim();
+                if (payload.length === 0) {
+                    return null;
+                }
+
+                if (payload === "1" || payload === "01") {
+                    return "01";
+                }
+                if (payload === "2" || payload === "02") {
+                    return "02";
+                }
+
+                const compact = payload.replace(/[^0-9A-F]/g, "");
+                if (compact.startsWith("01")) {
+                    return "01";
+                }
+                if (compact.startsWith("02")) {
+                    return "02";
+                }
+
+                return null;
+            }
+
             async function sendRc5(c1, c2, label) {
                 const route = "/lexicon_rc5?zone=" + encodeURIComponent(state.zone) + "&command1=" + encodeURIComponent(c1) + "&command2=" + encodeURIComponent(c2);
                 currentRoute.textContent = "Route: " + route;
@@ -519,11 +252,13 @@
                 }
             }
 
-            async function sendDirect(command, data, label) {
-                const route = "/lexicon_cmd?zone=" + encodeURIComponent(state.zone) + "&command=" + encodeURIComponent(command) + "&data=" + encodeURIComponent(data || "");
+            async function sendDirect(command, data, label, dataHex) {
+                const useHex = typeof dataHex === "string" && dataHex.length > 0;
+                const route = "/lexicon_cmd?zone=" + encodeURIComponent(state.zone) + "&command=" + encodeURIComponent(command) +
+                    (useHex ? "&datahex=" + encodeURIComponent(dataHex) : "&data=" + encodeURIComponent(data || ""));
                 currentRoute.textContent = "Route: " + route;
                 setStatus("TX CMD", "busy");
-                logLine("CMD " + (label || "") + " cc=" + command + " data=" + (data || "") + " zone=" + state.zone, "info");
+                logLine("CMD " + (label || "") + " cc=" + command + " data=" + (useHex ? ("0x" + dataHex) : (data || "")) + " zone=" + state.zone, "info");
 
                 try {
                     const res = await fetch(route);
@@ -533,9 +268,24 @@
                     }
                     setStatus("OK", "ok");
                     logLine(text, "ok");
+                    return {
+                        ok: true,
+                        text: text,
+                        route: route,
+                        zone: state.zone,
+                        command: command
+                    };
                 } catch (err) {
                     setStatus("ERREUR", "err");
-                    logLine(err.message || String(err), "err");
+                    const message = err && err.message ? err.message : String(err);
+                    logLine(message, "err");
+                    return {
+                        ok: false,
+                        error: message,
+                        route: route,
+                        zone: state.zone,
+                        command: command
+                    };
                 }
             }
 
@@ -563,15 +313,77 @@
                 });
             }
 
+            function setActiveZone(zone, syncReceiver) {
+                const zoneChanged = state.zone !== zone;
+                state.zone = zone;
+                if (topZone1 && topZone2) {
+                    topZone1.classList.toggle("primary", zone === "01");
+                    topZone2.classList.toggle("primary", zone === "02");
+                }
+                document.querySelectorAll("#zonePicker button").forEach(function(btn) {
+                    btn.classList.toggle("active", btn.getAttribute("data-zone") === zone);
+                });
+                logLine("Zone active: " + state.zone, "info");
+
+                if (syncReceiver && zoneChanged) {
+                    sendDirect("0x20", "", "zone query", "F0").then(function(result) {
+                        if (!result || !result.ok) {
+                            return;
+                        }
+
+                        const detectedZone = extractZoneFromDirectResponse(result.text);
+                        if (!detectedZone) {
+                            logLine("Zone non détectée dans la réponse", "info");
+                            return;
+                        }
+
+                        if (detectedZone !== state.zone) {
+                            logLine("Zone corrigée depuis réponse: " + detectedZone, "info");
+                            setActiveZone(detectedZone, false);
+                            return;
+                        }
+
+                        logLine("Zone confirmée: " + detectedZone, "ok");
+                    });
+                }
+            }
+
             document.querySelectorAll("#zonePicker button").forEach(function(btn) {
                 btn.addEventListener("click", function() {
-                    document.querySelectorAll("#zonePicker button").forEach(function(x) {
-                        x.classList.remove("active");
-                    });
-                    btn.classList.add("active");
-                    state.zone = btn.getAttribute("data-zone");
-                    logLine("Zone active: " + state.zone, "info");
+                    setActiveZone(btn.getAttribute("data-zone"), true);
                 });
+            });
+
+            if (topZone1) {
+                topZone1.addEventListener("click", function() {
+                    setActiveZone("01", true);
+                });
+            }
+
+            if (topZone2) {
+                topZone2.addEventListener("click", function() {
+                    setActiveZone("02", true);
+                });
+            }
+
+            document.getElementById("topLexiconPowerOn").addEventListener("click", function() {
+                sendRc5("0x10", "0x7B", "Power On");
+            });
+
+            document.getElementById("topLexiconPowerOff").addEventListener("click", function() {
+                sendRc5("0x10", "0x7C", "Power Off");
+            });
+
+            document.getElementById("topLexiconVolUp").addEventListener("click", function() {
+                sendRc5("0x10", "0x10", "Vol +");
+            });
+
+            document.getElementById("topLexiconVolDown").addEventListener("click", function() {
+                sendRc5("0x10", "0x11", "Vol -");
+            });
+
+            document.getElementById("toAzurPage").addEventListener("click", function() {
+                window.location.href = "/azur.html";
             });
 
             document.getElementById("sendManualRc5").addEventListener("click", function() {
@@ -593,6 +405,7 @@
             fillGrid("advancedAudio", advancedAudio, "ghost-btn");
             fillGrid("zone2Actions", zone2Actions, "ghost-btn");
 
+            setActiveZone(state.zone);
             logLine("Interface prête", "ok");
             setStatus("READY", "ok");
         })();
