@@ -15,19 +15,8 @@ void set_sensor(int sensor_id, bool state);
 
 
 /* */
-void startToaster();
-void stopToaster();
-void setToaster(bool activ);
+void startPower();
+void stopPower();
+void setPower(bool activ);
 
-
-/*  html */
-String htmlHead(String title, int refresh);
-String cardBegin(String title);
-String htmlCheck(String title, String name, bool state);
-String htmlCheck(String title, String name, bool state);
-String htmlFoot();
-
-
-/* Clood */
-bool connectService();
 

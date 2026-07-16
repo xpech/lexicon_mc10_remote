@@ -2,22 +2,13 @@
 #include <azur840.h>
 
 #include <FS.h>
-#ifdef ESP8266
 #include <LittleFS.h>
 #define LEXICON_FS LittleFS
-#else
-#include <LittleFS.h>
-#define LEXICON_FS LittleFS
-#endif
 
 #define LEXICON_RX GPIO_NUM_18
 #define LEXICON_TX GPIO_NUM_19
 
-#ifdef ESP8266
-extern ESP8266WebServer server;
-#else
 extern WebServer server;
-#endif
 
 namespace {
 constexpr uint8_t kFrameStart = 0x21;

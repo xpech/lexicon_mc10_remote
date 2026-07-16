@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Setup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/shared-ui.css">
+</head>
+<body class="lexicon-page">
+    <header class="app-nav">
+        <a href="/">Home</a>
+        <a href="/lexicon">Lexicon</a>
+        <a href="/azur840">Azur</a>
+        <a href="/setup.html" class="active">Setup</a>
+    </header>
+
+    <main class="wrap">
+        <section class="hero">
+            <h1>Setup</h1>
+            <p>Configuration rapide: Wi-Fi, mise a jour firmware et mode debug.</p>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2>Configuration Wi-Fi</h2>
+                <span class="badge">Wi-Fi</span>
+            </div>
+            <div class="form-grid">
+                <select id="ssidSelect" aria-label="Reseau Wi-Fi">
+                    <option value="">Selectionner un reseau...</option>
+                </select>
+                <input id="wifiPass" type="password" placeholder="Mot de passe" aria-label="Mot de passe Wi-Fi">
+                <button id="connectWifi" type="button" class="btn primary full">Connecter</button>
+                <button id="refreshWifi" type="button" class="btn full">Scanner les reseaux</button>
+            </div>
+            <p class="muted" id="wifiStatus">Etat: en attente</p>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2>Mise a jour firmware</h2>
+                <span class="badge">OTA</span>
+            </div>
+            <form action="/update" method="POST" enctype="multipart/form-data" class="form-grid">
+                <label for="firmwareFile" class="muted">Fichier firmware (.bin)</label>
+                <input id="firmwareFile" type="file" name="update" accept=".bin,application/octet-stream" required>
+                <button type="submit" class="btn warn full">Envoyer le firmware</button>
+            </form>
+            <p class="muted">Selectionnez un fichier .bin compile, puis validez l'envoi. L'ESP redemarre en fin de mise a jour.</p>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2>Mode debug</h2>
+                <span id="debugBadge" class="badge">INACTIF</span>
+            </div>
+            <div class="grid cols-3">
+                <button id="debugOn" type="button" class="action primary">Activer</button>
+                <button id="debugOff" type="button" class="action">Desactiver</button>
+                <button id="debugRefresh" type="button" class="action">Rafraichir</button>
+            </div>
+            <p class="muted">Le mode debug active la sortie de debug serie cote firmware.</p>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2>Navigation</h2>
+                <span class="badge">Liens</span>
+            </div>
+            <div class="grid">
+                <a class="btn" href="/">Retour accueil</a>
+                <a class="btn" href="/setup">Setup avance (historique)</a>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2>Logs</h2>
+                <span class="muted">diagnostic local</span>
+            </div>
+            <div id="log" class="log"></div>
+        </section>
+    </main>
+
+    <script>
+        (function() {
+            const ssidSelect = document.getElementById("ssidSelect");
+            const wifiPass = document.getElementById("wifiPass");
+            const wifiStatus = document.getElementById("wifiStatus");
+            const debugBadge = document.getElementById("debugBadge");
+            const logEl = document.getElementById("log");
+
+            function log(msg, kind) {
+                const line = document.createElement("div");
+                line.className = "line " + (kind || "info");
+                const now = new Date();
+                const hh = String(now.getHours()).padStart(2, "0");
+                const mm = String(now.getMinutes()).padStart(2, "0");
+                const ss = String(now.getSeconds()).padStart(2, "0");
+                line.textContent = "[" + hh + ":" + mm + ":" + ss + "] " + msg;
+                logEl.prepend(line);
+            }
+
+            function setDebugBadge(enabled) {
+                debugBadge.textContent = enabled ? "ACTIF" : "INACTIF";
+            }
+
+            async function loadWifiNetworks() {
+                wifiStatus.textContent = "Etat: scan en cours...";
+                try {
+                    const response = await fetch("/wifi_scan", { cache: "no-store" });
+                    const data = await response.json();
+                    ssidSelect.innerHTML = "<option value=\"\">Selectionner un reseau...</option>";
+
+                    if (Array.isArray(data.ssids)) {
+                        data.ssids.forEach(function(ssid) {
+                            const opt = document.createElement("option");
+                            opt.value = ssid;
+                            opt.textContent = ssid;
+                            ssidSelect.appendChild(opt);
+                        });
+                    }
+
+                    wifiStatus.textContent = "Etat: " + (data.ssids ? data.ssids.length : 0) + " reseau(x) trouve(s)";
+                    log("Scan Wi-Fi termine", "ok");
+                } catch (error) {
+                    wifiStatus.textContent = "Etat: erreur de scan";
+                    log("Erreur scan Wi-Fi: " + error.message, "err");
+                }
+            }
+
+            async function connectWifi() {
+                const ssid = ssidSelect.value;
+                const pass = wifiPass.value;
+                if (!ssid) {
+                    log("Selectionnez un reseau Wi-Fi", "err");
+                    return;
+                }
+
+                wifiStatus.textContent = "Etat: connexion a " + ssid + "...";
+                try {
+                    const params = new URLSearchParams({ ssid: ssid, pass: pass });
+                    const response = await fetch("/wifi_connect?" + params.toString(), { method: "GET", cache: "no-store" });
+                    const data = await response.json();
+                    if (data.ok) {
+                        wifiStatus.textContent = "Etat: connecte, IP " + (data.ip || "-");
+                        log("Connexion Wi-Fi reussie", "ok");
+                    } else {
+                        wifiStatus.textContent = "Etat: echec de connexion";
+                        log("Connexion Wi-Fi refusee", "err");
+                    }
+                } catch (error) {
+                    wifiStatus.textContent = "Etat: erreur de connexion";
+                    log("Erreur connexion Wi-Fi: " + error.message, "err");
+                }
+            }
+
+            async function refreshDebugState() {
+                try {
+                    const response = await fetch("/debug_state", { cache: "no-store" });
+                    const data = await response.json();
+                    setDebugBadge(data.debug === 1 || data.debug === "1");
+                } catch (error) {
+                    log("Erreur lecture debug: " + error.message, "err");
+                }
+            }
+
+            async function setDebugMode(enabled) {
+                try {
+                    const response = await fetch("/debug_mode?enabled=" + (enabled ? "1" : "0"), { method: "GET", cache: "no-store" });
+                    const data = await response.json();
+                    setDebugBadge(data.debug === 1 || data.debug === "1");
+                    log("Mode debug " + (enabled ? "active" : "desactive"), "ok");
+                } catch (error) {
+                    log("Erreur debug: " + error.message, "err");
+                }
+            }
+
+            document.getElementById("refreshWifi").addEventListener("click", loadWifiNetworks);
+            document.getElementById("connectWifi").addEventListener("click", connectWifi);
+            document.getElementById("debugOn").addEventListener("click", function() { setDebugMode(true); });
+            document.getElementById("debugOff").addEventListener("click", function() { setDebugMode(false); });
+            document.getElementById("debugRefresh").addEventListener("click", refreshDebugState);
+
+            loadWifiNetworks();
+            refreshDebugState();
+        })();
+    </script>
+</body>
+</html>

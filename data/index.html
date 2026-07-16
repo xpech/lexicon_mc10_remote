@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Accueil telecommande</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/shared-ui.css">
+</head>
+<body class="lexicon-page">
+    <header class="app-nav">
+        <a href="/" class="active">Home</a>
+        <a href="/lexicon">Lexicon</a>
+        <a href="/azur840">Azur</a>
+        <a href="/setup.html">Setup</a>
+    </header>
+
+    <main class="wrap">
+        <section class="hero">
+            <h1>Centre de commande</h1>
+            <p>Acces rapide au Lexicon, au setup et aux commandes d'alimentation generale.</p>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2>Power general (pin)</h2>
+                <span id="powerState" class="badge">ETAT INCONNU</span>
+            </div>
+            <div class="grid cols-3">
+                <button id="powerOn" type="button" class="action primary">Power ON</button>
+                <button id="powerOff" type="button" class="action warn">Power OFF</button>
+                <button id="refreshState" type="button" class="action">Rafraichir</button>
+            </div>
+            <p class="muted">Ces boutons appellent /on et /off. Le pin pilote est celui configure dans le firmware (POWER_PIN).</p>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2>Logs</h2>
+                <span class="muted">diagnostic local</span>
+            </div>
+            <div id="log" class="log"></div>
+        </section>
+    </main>
+
+    <script>
+        (function() {
+            const stateBadge = document.getElementById("powerState");
+            const logEl = document.getElementById("log");
+
+            function log(msg, kind) {
+                const line = document.createElement("div");
+                line.className = "line " + (kind || "info");
+                const now = new Date();
+                const hh = String(now.getHours()).padStart(2, "0");
+                const mm = String(now.getMinutes()).padStart(2, "0");
+                const ss = String(now.getSeconds()).padStart(2, "0");
+                line.textContent = "[" + hh + ":" + mm + ":" + ss + "] " + msg;
+                logEl.prepend(line);
+            }
+
+            function parsePowerFromJsonText(text) {
+                const match = String(text).match(/"power"\s*:\s*(\d+)/i);
+                if (!match) {
+                    return null;
+                }
+                return match[1] === "1";
+            }
+
+            function setBadge(isOn) {
+                if (isOn === null) {
+                    stateBadge.textContent = "ETAT INCONNU";
+                    return;
+                }
+                stateBadge.textContent = isOn ? "POWER ON" : "POWER OFF";
+            }
+
+            async function refreshState() {
+                try {
+                    const response = await fetch("/json", { cache: "no-store" });
+                    const text = await response.text();
+                    const isOn = parsePowerFromJsonText(text);
+                    setBadge(isOn);
+                    log("Etat pin: " + (isOn ? "ON" : isOn === false ? "OFF" : "inconnu"), "ok");
+                } catch (error) {
+                    setBadge(null);
+                    log("Erreur lecture etat: " + error.message, "err");
+                }
+            }
+
+            async function power(path, label) {
+                try {
+                    await fetch(path, { method: "GET", cache: "no-store" });
+                    log(label + " envoye", "ok");
+                    await refreshState();
+                } catch (error) {
+                    log("Erreur " + label + ": " + error.message, "err");
+                }
+            }
+
+            document.getElementById("powerOn").addEventListener("click", function() {
+                power("/on", "Power ON");
+            });
+
+            document.getElementById("powerOff").addEventListener("click", function() {
+                power("/off", "Power OFF");
+            });
+
+            document.getElementById("refreshState").addEventListener("click", refreshState);
+
+            refreshState();
+        })();
+    </script>
+</body>
+</html>

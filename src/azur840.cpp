@@ -6,11 +6,7 @@
 #define AZUR840_RX GPIO_NUM_16
 #define AZUR840_TX GPIO_NUM_17
 
-#ifdef ESP8266
-extern ESP8266WebServer server;
-#else
 extern WebServer server;
-#endif
 
 namespace {
 constexpr uint32_t kAzurDefaultTimeoutMs = 1200;

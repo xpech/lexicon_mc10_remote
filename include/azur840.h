@@ -3,11 +3,7 @@
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
-#ifdef ESP8266
-#include <ESP8266WebServer.h>
-#else
 #include <WebServer.h>
-#endif
 
 int azur840Setup();
 void handleAzur840Index();
