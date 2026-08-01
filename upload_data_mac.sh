@@ -11,6 +11,14 @@ if command -v pio >/dev/null 2>&1; then
   PIO_CMD="pio"
 elif command -v platformio >/dev/null 2>&1; then
   PIO_CMD="platformio"
+elif [[ -x "/opt/local/bin/pio" ]]; then
+  PIO_CMD="/opt/local/bin/pio"
+elif [[ -x "/opt/local/bin/platformio" ]]; then
+  PIO_CMD="/opt/local/bin/platformio"
+elif [[ -x "/opt/homebrew/bin/pio" ]]; then
+  PIO_CMD="/opt/homebrew/bin/pio"
+elif [[ -x "/usr/local/bin/pio" ]]; then
+  PIO_CMD="/usr/local/bin/pio"
 else
   echo "Erreur: ni 'pio' ni 'platformio' n'est disponible dans le PATH." >&2
   echo "Installez PlatformIO Core puis relancez ce script." >&2
