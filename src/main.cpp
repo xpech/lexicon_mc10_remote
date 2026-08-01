@@ -57,8 +57,9 @@ void handleDebugModeApi();
 void handleDebugStateApi();
 
 
-#define USE_DHT // utilise un capteur dht11 - commenter pour desactiver
+// #define USE_DHT // utilise un capteur dht11 - commenter pour desactiver
 #define USE_DALLAS // utilise une sonde onwire dallas - commenter pour desactiver
+
 #define POWER_PIN D1
 #define RESET_PIN D8
 
@@ -242,6 +243,45 @@ void IRAM_ATTR resetWifi()
 String httpSecure = "";
 bool g_mainFsReady = false;
 bool g_debugMode = false;
+bool g_pendingSoftApShutdown = false;
+unsigned long g_softApShutdownAt = 0;
+
+void scheduleSoftApShutdown(unsigned long delayMs)
+{
+  const WiFiMode_t mode = WiFi.getMode();
+  if (mode == WIFI_AP || mode == WIFI_AP_STA)
+  {
+    g_pendingSoftApShutdown = true;
+    g_softApShutdownAt = millis() + delayMs;
+    Serial.printf("[WIFI] AP->STA scheduled in %lu ms\n", delayMs);
+  }
+}
+
+void processPendingSoftApShutdown()
+{
+  if (!g_pendingSoftApShutdown)
+  {
+    return;
+  }
+
+  if (static_cast<long>(millis() - g_softApShutdownAt) < 0)
+  {
+    return;
+  }
+
+  Serial.println("[WIFI] AP->STA transition: stopping SoftAP");
+  WiFi.softAPdisconnect(true);
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.printf("[WIFI] AP->STA transition: STA connected, IP=%s\n", WiFi.localIP().toString().c_str());
+    WiFi.mode(WIFI_STA);
+  }
+  else
+  {
+    Serial.println("[WIFI] AP->STA transition: STA not connected");
+  }
+  g_pendingSoftApShutdown = false;
+}
 
 bool parseBoolArg(const String &name, bool defaultValue)
 {
@@ -347,7 +387,8 @@ void handleWifiConnectApi()
     return;
   }
 
-  WiFi.softAPdisconnect(true);
+  // Keep AP alive while the HTTP response is sent, otherwise the socket is aborted.
+  WiFi.mode(WIFI_AP_STA);
   WiFi.persistent(true);
   WiFi.setAutoConnect(true);
   WiFi.begin(ssid.c_str(), pass.c_str());
@@ -363,6 +404,7 @@ void handleWifiConnectApi()
   {
     String response = "{\"ok\":1,\"ip\":\"" + WiFi.localIP().toString() + "\"}";
     server.send(200, "application/json", response);
+    scheduleSoftApShutdown(2000);
   }
   else
   {
@@ -567,40 +609,43 @@ String hostname;
 
 void connectWifi()
 {
-  
-  /* gestion WIFI */
-   if (myconf.setup_ok)
-   {
-      WiFi.mode(WIFI_STA);
-      WiFi.begin();
+  Serial.println("Connecting to WiFi ...");
+  delay(1000);
+  WiFi.setTxPower(WIFI_POWER_MINUS_1dBm); // before starting the network.
+  WiFi.mode(WIFI_STA);
+//  WiFi.setTxPower(WIFI_POWER_MINUS_1dBm); // before starting the network.
+  Serial.println("WiFi begin ...");
+  WiFi.begin();
+  delay(200);
 
-      Serial.println(myconf.wifi_ssid);
-      while (WiFi.status() != WL_CONNECTED)
-      {
-        delay(700);
-        Serial.printf("Connection status: %s\n", wifisatus(WiFi.status()));
-        Serial.print(".");
-      }
-       Serial.println(" connected");
-       Serial.println(wifisatus(WiFi.status()));
-      if (WiFi.status() == WL_CONNECTED)
-       {
-          Serial.print("Connected, IP address: ");
-          Serial.println(WiFi.localIP());
-         // NTP
-        waitForSync(); // NTP
-        timezone.setLocation("Europe/Paris");
-       } else {
-       Serial.print("WTF with WIFI");
-     
-       }
-  } else {
-    Serial.print("Not connected, try to reconnected later ...");
+  int connect_attempts = 0;
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(700);
+    Serial.printf("Connection status: %s\n", wifisatus(WiFi.status()));
+    Serial.print(".");
+    connect_attempts++;
+    if (connect_attempts > 20) break;
+  }
+
+  Serial.println(" connected");
+  Serial.println(wifisatus(WiFi.status()));
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    Serial.print("Connected, IP address: ");
+    Serial.println(WiFi.localIP());
+    // NTP
+    waitForSync(); // NTP
+    timezone.setLocation("Europe/Paris");
+  }
+  else
+  {
     Serial.println("Starting Accesspoint mode ...");
     WiFi.mode(WIFI_AP);
     WiFi.softAP(hostname);
     dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
     dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+    Serial.println(WiFi.softAPIP());
   }
 }
 
@@ -623,52 +668,11 @@ void setup()
 
   Serial.println(hostname);
   
-
-  
   pinMode( RESET_PIN, INPUT);
   // attachInterrupt(digitalPinToInterrupt(RESET_PIN), resetWifi, CHANGE);
   
-  /* Chargement Config */
-  // Config myconf;
-  conf_load();
   stopPower();
-  Serial.print("SSID : ");
-  Serial.println(myconf.wifi_ssid);
-  /* Manage Wifi */
-  //WiFi.setAutoConnect(true);
-  WiFi.begin();
-
-  int connect_attempts = 0;
-  while (WiFi.status() != WL_CONNECTED)
-      {
-        delay(700);
-        Serial.printf("Connection status: %s\n", wifisatus(WiFi.status()));
-        Serial.print(".");
-        connect_attempts++;
-        if (connect_attempts > 20) break;
-      }
-       Serial.println(" connected");
-       Serial.println(wifisatus(WiFi.status()));
-      if (WiFi.status() == WL_CONNECTED)
-       {
-          Serial.print("Connected, IP address: ");
-          Serial.println(WiFi.localIP());
-         // NTP
-        waitForSync(); // NTP
-        timezone.setLocation("Europe/Paris");
-       } else {
-       Serial.print("WTF with WIFI");
-     
-       }
-
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Starting Accesspoint mode ...");
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP(hostname);
-    dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-    dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
-    Serial.println(WiFi.softAPIP());
-  }
+  connectWifi();
   
   // Demarre le mDNS
   Serial.print("hostname:");
@@ -764,6 +768,7 @@ void loop() {
   // strdebug = "";
   server.handleClient(); // on verifie si on a une connexion http et on la gère
   dnsServer.processNextRequest();
+  processPendingSoftApShutdown();
   // unsigned long current_h = timezone.hour();
   events();
   delay(100); // pause de 100ms : gain d'energie

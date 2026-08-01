@@ -38,6 +38,24 @@
 
         <section class="panel">
             <div class="row">
+                <h2>Capteurs</h2>
+                <span class="muted">mesures locales</span>
+            </div>
+            <div class="grid cols-3">
+                <div class="action">
+                    <strong>Temperature</strong><br>
+                    <span id="tempValue">--.- °C</span>
+                </div>
+                <div class="action">
+                    <strong>Humidite</strong><br>
+                    <span id="humValue">--.- %</span>
+                </div>
+                <button id="refreshSensors" type="button" class="action">Rafraichir capteurs</button>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="row">
                 <h2>Logs</h2>
                 <span class="muted">diagnostic local</span>
             </div>
@@ -48,6 +66,8 @@
     <script>
         (function() {
             const stateBadge = document.getElementById("powerState");
+            const tempValue = document.getElementById("tempValue");
+            const humValue = document.getElementById("humValue");
             const logEl = document.getElementById("log");
 
             function log(msg, kind) {
@@ -61,12 +81,11 @@
                 logEl.prepend(line);
             }
 
-            function parsePowerFromJsonText(text) {
-                const match = String(text).match(/"power"\s*:\s*(\d+)/i);
-                if (!match) {
-                    return null;
-                }
-                return match[1] === "1";
+            function parseTelemetry(payload) {
+                const power = (payload && typeof payload.power !== "undefined") ? Number(payload.power) === 1 : null;
+                const temperature = (payload && typeof payload.temperature !== "undefined") ? Number(payload.temperature) : null;
+                const humidity = (payload && typeof payload.humidity !== "undefined") ? Number(payload.humidity) : null;
+                return { power, temperature, humidity };
             }
 
             function setBadge(isOn) {
@@ -77,15 +96,31 @@
                 stateBadge.textContent = isOn ? "POWER ON" : "POWER OFF";
             }
 
+            function setSensors(temperature, humidity) {
+                if (temperature === null || Number.isNaN(temperature)) {
+                    tempValue.textContent = "--.- °C";
+                } else {
+                    tempValue.textContent = temperature.toFixed(1) + " °C";
+                }
+
+                if (humidity === null || Number.isNaN(humidity)) {
+                    humValue.textContent = "--.- %";
+                } else {
+                    humValue.textContent = humidity.toFixed(1) + " %";
+                }
+            }
+
             async function refreshState() {
                 try {
                     const response = await fetch("/json", { cache: "no-store" });
-                    const text = await response.text();
-                    const isOn = parsePowerFromJsonText(text);
-                    setBadge(isOn);
-                    log("Etat pin: " + (isOn ? "ON" : isOn === false ? "OFF" : "inconnu"), "ok");
+                    const payload = await response.json();
+                    const telemetry = parseTelemetry(payload);
+                    setBadge(telemetry.power);
+                    setSensors(telemetry.temperature, telemetry.humidity);
+                    log("Etat pin: " + (telemetry.power ? "ON" : telemetry.power === false ? "OFF" : "inconnu"), "ok");
                 } catch (error) {
                     setBadge(null);
+                    setSensors(null, null);
                     log("Erreur lecture etat: " + error.message, "err");
                 }
             }
@@ -109,6 +144,7 @@
             });
 
             document.getElementById("refreshState").addEventListener("click", refreshState);
+            document.getElementById("refreshSensors").addEventListener("click", refreshState);
 
             refreshState();
         })();

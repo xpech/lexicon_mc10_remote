@@ -206,6 +206,8 @@ String parseAzurFrameAscii(const String &ascii) {
 
 int azur840Setup() {
   server.on("/azur840", HTTP_GET, handleAzur840Index);
+  server.on("/azur.html", HTTP_GET, handleAzur840Index);
+  server.on("/azur", HTTP_GET, handleAzur840Index);
   server.on("/azur840.html", HTTP_GET, handleAzur840Index);
   server.on("/azur840_api", HTTP_GET, handleAzur840Api);
   server.on("/azur840_api", HTTP_POST, handleAzur840Api);
