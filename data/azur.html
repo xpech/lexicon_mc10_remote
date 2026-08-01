@@ -3,29 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Coolhome Azur 840</title>
+  <title>Azur 840</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="azur-page">
-  <div class="top-panel azur">
+  <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+  <nav class="app-nav" aria-label="Navigation principale">
+    <a href="/">Home</a>
+    <a href="/lexicon">Lexicon</a>
+    <a href="/azur840" class="active" aria-current="page">Azur</a>
+    <a href="/setup.html">Setup</a>
+  </nav>
+
+  <div class="top-panel azur" role="group" aria-label="Commandes rapides Azur">
     <button id="topPowerOn" type="button" class="top-btn primary">Power On</button>
     <button id="topPowerOff" type="button" class="top-btn warn">Power Off</button>
     <button id="topVolUp" type="button" class="top-btn volume-control volume-up">Volume +</button>
     <button id="topVolDown" type="button" class="top-btn volume-control volume-down">Volume -</button>
-    <button id="toLexiconPage" type="button" class="top-btn nav">&larr; Lexicon</button>
   </div>
 
-  <header class="app-nav">
-    <a href="/">Home</a>
-    <a href="/lexicon">Lexicon</a>
-    <a href="/azur840" class="active">Azur</a>
-    <a href="/setup.html">Setup</a>
-  </header>
-
-  <main class="wrap">
+  <main class="wrap" id="main-content">
     <section class="hero">
       <h1>Azur 840 RS232</h1>
       <p>Commandes rapides, mode protocole structure et mode brut pour diagnostic.</p>
@@ -35,6 +35,7 @@
       <div class="row">
         <h2>Etat lien serie</h2>
         <span class="badge" id="statusBadge">READY</span>
+        <span id="statusAnnouncement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></span>
       </div>
       <p class="muted" id="routeInfo">Route: /azur840_api</p>
       <p class="muted" id="decodedInfo">Decodeur: en attente de trame</p>
@@ -56,7 +57,7 @@
         <div class="state-card"><div class="state-label">Balance</div><div class="state-value" id="stBalance">Unknown</div></div>
         <div class="state-card"><div class="state-label">Direct</div><div class="state-value" id="stDirect">Unknown</div></div>
       </div>
-      <div class="log" id="log"></div>
+      <div class="log" id="log" aria-label="Journal des commandes Azur" tabindex="0"></div>
     </section>
 
     <section class="panel">
@@ -90,17 +91,24 @@
         <span class="muted">#G,NN,DATA</span>
       </div>
       <div class="form">
+        <label class="sr-only" for="group">Groupe du protocole</label>
         <input id="group" value="1" placeholder="group 1..5">
+        <label class="sr-only" for="command">Numéro de commande</label>
         <input id="command" value="11" placeholder="command 00..99">
+        <label class="sr-only" for="data">Données de la commande</label>
         <input id="data" class="full" value="1" placeholder="data (max 10 chars)">
+        <label class="sr-only" for="baud">Vitesse en bauds</label>
         <input id="baud" value="9600" placeholder="baud">
+        <label class="sr-only" for="timeout">Délai d’attente en millisecondes</label>
         <input id="timeout" value="1200" placeholder="timeout ms">
         <button id="sendStructured" class="btn primary full" type="button">Envoyer commande structuree</button>
       </div>
 
       <h2 class="section-title">Mode brut</h2>
       <div class="form">
+        <label class="sr-only" for="tx">Trame ASCII à transmettre</label>
         <input id="tx" class="full" placeholder="tx ascii ex: #1,11,1">
+        <label class="sr-only" for="txHex">Trame hexadécimale à transmettre</label>
         <input id="txHex" class="full" placeholder="tx_hex ex: 23312C31312C31">
         <select id="suffix" title="Suffix" aria-label="Suffix">
           <option value="cr" selected>suffix CR</option>
@@ -120,6 +128,7 @@
   <script>
     (function () {
       const statusBadge = document.getElementById('statusBadge');
+      const statusAnnouncement = document.getElementById('statusAnnouncement');
       const routeInfo = document.getElementById('routeInfo');
       const decodedInfo = document.getElementById('decodedInfo');
       const log = document.getElementById('log');
@@ -426,6 +435,7 @@
         routeInfo.textContent = 'Route: ' + route;
         setStatus(isPollingRequest ? 'POLL' : 'TX', 'busy');
         if (!isPollingRequest) {
+          statusAnnouncement.textContent = 'Envoi de la commande en cours';
           addLog('TX ' + qs.toString(), 'info');
         }
 
@@ -439,6 +449,7 @@
           }
           setStatus('OK', 'ok');
           if (!isPollingRequest) {
+            statusAnnouncement.textContent = 'Commande envoyée avec succès';
             addLog(text, 'ok');
           } else {
             addLog('POLL OK ' + text.split('\n')[0], 'info');
@@ -446,6 +457,7 @@
           decodeResponseText(text);
         } catch (err) {
           setStatus('ERROR', 'err');
+          statusAnnouncement.textContent = 'Erreur de commande : ' + (err.message || String(err));
           addLog(err.message || String(err), 'err');
         } finally {
           inFlight = false;
@@ -493,6 +505,19 @@
         });
         buttonEl.addEventListener('pointercancel', stopVolumeHold);
         buttonEl.addEventListener('pointerleave', stopVolumeHold);
+        buttonEl.addEventListener('keydown', function (evt) {
+          if (evt.key === 'Enter' || evt.key === ' ') {
+            evt.preventDefault();
+            beginVolumeHold(direction);
+          }
+        });
+        buttonEl.addEventListener('keyup', function (evt) {
+          if (evt.key === 'Enter' || evt.key === ' ') {
+            evt.preventDefault();
+            stopVolumeHold();
+          }
+        });
+        buttonEl.addEventListener('blur', stopVolumeHold);
       }
 
       function buildButton(item, onClick) {
@@ -637,9 +662,12 @@
         callApi({ group: '1', command: '11', data: '0', baud: '9600', timeout: '1200', response: 'ascii' });
       });
 
-      document.getElementById('toLexiconPage').addEventListener('click', function () {
-        window.location.href = '/lexicon.html';
-      });
+      const toLexiconPage = document.getElementById('toLexiconPage');
+      if (toLexiconPage) {
+        toLexiconPage.addEventListener('click', function () {
+          window.location.href = '/lexicon.html';
+        });
+      }
 
       bindHoldButton(document.getElementById('topVolUp'), 'up');
       bindHoldButton(document.getElementById('topVolDown'), 'down');

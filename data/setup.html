@@ -10,14 +10,15 @@
     <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="lexicon-page">
-    <header class="app-nav">
+    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+    <nav class="app-nav" aria-label="Navigation principale">
         <a href="/">Home</a>
         <a href="/lexicon">Lexicon</a>
         <a href="/azur840">Azur</a>
-        <a href="/setup.html" class="active">Setup</a>
-    </header>
+        <a href="/setup.html" class="active" aria-current="page">Setup</a>
+    </nav>
 
-    <main class="wrap">
+    <main class="wrap" id="main-content">
         <section class="hero">
             <h1>Setup</h1>
             <p>Configuration rapide: Wi-Fi, mise a jour firmware et mode debug.</p>
@@ -36,7 +37,7 @@
                 <button id="connectWifi" type="button" class="btn primary full">Connecter</button>
                 <button id="refreshWifi" type="button" class="btn full">Scanner les reseaux</button>
             </div>
-            <p class="muted" id="wifiStatus">Etat: en attente</p>
+            <p class="muted" id="wifiStatus" role="status" aria-live="polite">Etat: en attente</p>
         </section>
 
         <section class="panel">
@@ -55,7 +56,7 @@
         <section class="panel">
             <div class="row">
                 <h2>Mode debug</h2>
-                <span id="debugBadge" class="badge">INACTIF</span>
+                <span id="debugBadge" class="badge" role="status" aria-live="polite">INACTIF</span>
             </div>
             <div class="grid cols-3">
                 <button id="debugOn" type="button" class="action primary">Activer</button>
@@ -81,7 +82,7 @@
                 <h2>Logs</h2>
                 <span class="muted">diagnostic local</span>
             </div>
-            <div id="log" class="log"></div>
+            <div id="log" class="log" role="log" aria-live="polite" aria-label="Journal de configuration" tabindex="0"></div>
         </section>
     </main>
 

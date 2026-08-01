@@ -3,47 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Coolhome Lexicon Control</title>
+    <title>Lexicon Control</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="lexicon-page">
-    <div class="top-panel lexicon">
-        <button id="topZone1" type="button" class="top-btn">Zone 1</button>
-        <button id="topZone2" type="button" class="top-btn">Zone 2</button>
+    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+    <nav class="app-nav" aria-label="Navigation principale">
+        <a href="/">Home</a>
+        <a href="/lexicon" class="active" aria-current="page">Lexicon</a>
+        <a href="/azur840">Azur</a>
+        <a href="/setup.html">Setup</a>
+    </nav>
+
+    <div class="top-panel lexicon" role="group" aria-label="Commandes rapides Lexicon">
+        <button id="topZone1" type="button" class="top-btn" aria-pressed="true">Zone 1</button>
+        <button id="topZone2" type="button" class="top-btn" aria-pressed="false">Zone 2</button>
         <button id="topLexiconPowerOn" type="button" class="top-btn primary">Power On</button>
         <button id="topLexiconPowerOff" type="button" class="top-btn warn">Power Off</button>
         <button id="topLexiconVolUp" type="button" class="top-btn volume-control volume-up">Vol +</button>
         <button id="topLexiconVolDown" type="button" class="top-btn volume-control volume-down">Vol -</button>
-        <button id="toAzurPage" type="button" class="top-btn nav">&rarr; Azur</button>
     </div>
 
-    <header class="app-nav">
-        <a href="/">Home</a>
-        <a href="/lexicon" class="active">Lexicon</a>
-        <a href="/azur840">Azur</a>
-        <a href="/setup.html">Setup</a>
-    </header>
-
-    <main class="wrap">
+    <main class="wrap" id="main-content">
         <section class="hero">
-            <h1>Coolhome Lexicon</h1>
+            <h1>Lexicon</h1>
             <p>Télécommande série optimisée mobile. Commandes rapides en haut, commandes avancées en bas.</p>
         </section>
 
         <section class="panel status">
             <div class="row">
                 <h2>Statut liaison</h2>
-                <span id="statusBadge" class="badge">IDLE</span>
+                <span id="statusBadge" class="badge" role="status" aria-live="polite" aria-atomic="true">IDLE</span>
             </div>
             <div class="zone-picker" id="zonePicker">
-                <button type="button" data-zone="01" class="active">Zone 1</button>
-                <button type="button" data-zone="02">Zone 2</button>
+                <button type="button" data-zone="01" class="active" aria-pressed="true">Zone 1</button>
+                <button type="button" data-zone="02" aria-pressed="false">Zone 2</button>
             </div>
             <p class="muted" id="currentRoute">Route: /lexicon_rc5</p>
-            <div class="log" id="log"></div>
+            <div class="log" id="log" role="log" aria-live="polite" aria-label="Journal des commandes Lexicon" tabindex="0"></div>
         </section>
 
         <section class="panel">
@@ -326,9 +326,13 @@
                 if (topZone1 && topZone2) {
                     topZone1.classList.toggle("primary", zone === "01");
                     topZone2.classList.toggle("primary", zone === "02");
+                    topZone1.setAttribute("aria-pressed", String(zone === "01"));
+                    topZone2.setAttribute("aria-pressed", String(zone === "02"));
                 }
                 document.querySelectorAll("#zonePicker button").forEach(function(btn) {
-                    btn.classList.toggle("active", btn.getAttribute("data-zone") === zone);
+                    const isActive = btn.getAttribute("data-zone") === zone;
+                    btn.classList.toggle("active", isActive);
+                    btn.setAttribute("aria-pressed", String(isActive));
                 });
                 logLine("Zone active: " + state.zone, "info");
 
@@ -389,9 +393,12 @@
                 sendRc5("0x10", "0x11", "Vol -");
             });
 
-            document.getElementById("toAzurPage").addEventListener("click", function() {
-                window.location.href = "/azur.html";
-            });
+            const toAzurPage = document.getElementById("toAzurPage");
+            if (toAzurPage) {
+                toAzurPage.addEventListener("click", function() {
+                    window.location.href = "/azur.html";
+                });
+            }
 
             document.getElementById("sendManualRc5").addEventListener("click", function() {
                 const c1 = document.getElementById("manualRc5C1").value.trim() || "0x10";

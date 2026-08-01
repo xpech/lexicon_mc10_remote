@@ -10,14 +10,15 @@
     <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="lexicon-page">
-    <header class="app-nav">
-        <a href="/" class="active">Home</a>
+    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+    <nav class="app-nav" aria-label="Navigation principale">
+        <a href="/" class="active" aria-current="page">Home</a>
         <a href="/lexicon">Lexicon</a>
         <a href="/azur840">Azur</a>
         <a href="/setup.html">Setup</a>
-    </header>
+    </nav>
 
-    <main class="wrap">
+    <main class="wrap" id="main-content">
         <section class="hero">
             <h1>Centre de commande</h1>
             <p>Acces rapide au Lexicon, au setup et aux commandes d'alimentation generale.</p>
@@ -26,9 +27,9 @@
         <section class="panel">
             <div class="row">
                 <h2>Power general (pin)</h2>
-                <span id="powerState" class="badge">ETAT INCONNU</span>
+                <span id="powerState" class="badge" role="status" aria-live="polite">ETAT INCONNU</span>
             </div>
-            <div class="grid cols-3">
+            <div class="grid cols-3" aria-live="polite" aria-atomic="true">
                 <button id="powerOn" type="button" class="action primary">Power ON</button>
                 <button id="powerOff" type="button" class="action warn">Power OFF</button>
                 <button id="refreshState" type="button" class="action">Rafraichir</button>
@@ -59,7 +60,7 @@
                 <h2>Logs</h2>
                 <span class="muted">diagnostic local</span>
             </div>
-            <div id="log" class="log"></div>
+            <div id="log" class="log" role="log" aria-live="polite" aria-label="Journal des opérations" tabindex="0"></div>
         </section>
     </main>
 
