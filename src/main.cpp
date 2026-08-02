@@ -42,6 +42,7 @@ WebServer server(80);
 */
 const byte DNS_PORT = 53;
 DNSServer dnsServer;
+bool g_dnsServerStarted = false;
 
 int  updateDatas();
 void handleJSON();
@@ -270,6 +271,11 @@ void processPendingSoftApShutdown()
   }
 
   Serial.println("[WIFI] AP->STA transition: stopping SoftAP");
+  if (g_dnsServerStarted)
+  {
+    dnsServer.stop();
+    g_dnsServerStarted = false;
+  }
   WiFi.softAPdisconnect(true);
   if (WiFi.status() == WL_CONNECTED)
   {
@@ -329,7 +335,14 @@ bool sendFsFile(const char *path, const char *contentType)
   }
 
   server.sendHeader("Cache-Control", "no-cache");
-  server.streamFile(f, contentType);
+  const size_t fileSize = f.size();
+  const unsigned long streamStartedAt = millis();
+  const size_t bytesSent = server.streamFile(f, contentType);
+  Serial.printf("[HTTP] %s: %u/%u bytes sent in %lu ms\n",
+                path,
+                static_cast<unsigned int>(bytesSent),
+                static_cast<unsigned int>(fileSize),
+                millis() - streamStartedAt);
   f.close();
   return true;
 }
@@ -611,9 +624,10 @@ void connectWifi()
 {
   Serial.println("Connecting to WiFi ...");
   delay(1000);
-  WiFi.setTxPower(WIFI_POWER_MINUS_1dBm); // before starting the network.
   WiFi.mode(WIFI_STA);
-//  WiFi.setTxPower(WIFI_POWER_MINUS_1dBm); // before starting the network.
+  // Configure the radio after WiFi.mode(), which initializes the Wi-Fi driver.
+  WiFi.setSleep(false);
+  WiFi.setTxPower(WIFI_POWER_19_5dBm);
   Serial.println("WiFi begin ...");
   WiFi.begin();
   delay(200);
@@ -642,9 +656,11 @@ void connectWifi()
   {
     Serial.println("Starting Accesspoint mode ...");
     WiFi.mode(WIFI_AP);
+    WiFi.setSleep(false);
+    WiFi.setTxPower(WIFI_POWER_19_5dBm);
     WiFi.softAP(hostname);
     dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-    dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
+    g_dnsServerStarted = dnsServer.start(DNS_PORT, "*", WiFi.softAPIP());
     Serial.println(WiFi.softAPIP());
   }
 }
@@ -767,11 +783,14 @@ void loop() {
 
   // strdebug = "";
   server.handleClient(); // on verifie si on a une connexion http et on la gère
-  dnsServer.processNextRequest();
+  if (g_dnsServerStarted)
+  {
+    dnsServer.processNextRequest();
+  }
   processPendingSoftApShutdown();
   // unsigned long current_h = timezone.hour();
   events();
-  delay(100); // pause de 100ms : gain d'energie
+  delay(5); // laisse respirer le CPU sans ralentir le serveur HTTP
 }
 
 String log_messages = "";

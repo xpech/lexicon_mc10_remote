@@ -234,7 +234,13 @@ void handleAzur840Index() {
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   server.sendHeader("Cache-Control", "no-cache");
-  server.streamFile(f, "text/html");
+  const size_t fileSize = f.size();
+  const unsigned long streamStartedAt = millis();
+  const size_t bytesSent = server.streamFile(f, "text/html");
+  Serial.printf("[HTTP] /azur840: %u/%u bytes sent in %lu ms\n",
+                static_cast<unsigned int>(bytesSent),
+                static_cast<unsigned int>(fileSize),
+                millis() - streamStartedAt);
   f.close();
 }
 

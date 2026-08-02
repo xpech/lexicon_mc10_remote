@@ -76,11 +76,11 @@ bool parseHexDataArg(const String &name, String &data) {
   return true;
 }
 
-void sendCorsHeaders() {
+void sendCorsHeaders(const char *cacheControl = "no-cache") {
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  server.sendHeader("Cache-Control", "no-cache");
+  server.sendHeader("Cache-Control", cacheControl);
 }
 
 void handleSharedUiCss() {
@@ -99,8 +99,14 @@ void handleSharedUiCss() {
     return;
   }
 
-  sendCorsHeaders();
-  server.streamFile(f, "text/css");
+  sendCorsHeaders("public, max-age=86400");
+  const size_t fileSize = f.size();
+  const unsigned long streamStartedAt = millis();
+  const size_t bytesSent = server.streamFile(f, "text/css");
+  Serial.printf("[HTTP] /shared-ui.css: %u/%u bytes sent in %lu ms\n",
+                static_cast<unsigned int>(bytesSent),
+                static_cast<unsigned int>(fileSize),
+                millis() - streamStartedAt);
   f.close();
 }
 
@@ -367,6 +373,7 @@ int lexiconSetup() {
 }
 
 void handleLixiconIndex() {
+  Serial.print("handleLixiconIndex");
   if (!g_fsReady) {
     g_fsReady = LEXICON_FS.begin();
   }
@@ -381,9 +388,16 @@ void handleLixiconIndex() {
     server.send(404, "text/plain", "File not found");
     return;
   }
+  Serial.print("send file");
 
   sendCorsHeaders();
-  server.streamFile(f, "text/html");
+  const size_t fileSize = f.size();
+  const unsigned long streamStartedAt = millis();
+  const size_t bytesSent = server.streamFile(f, "text/html");
+  Serial.printf("[HTTP] /lexicon: %u/%u bytes sent in %lu ms\n",
+                static_cast<unsigned int>(bytesSent),
+                static_cast<unsigned int>(fileSize),
+                millis() - streamStartedAt);
   f.close();
 }
 
