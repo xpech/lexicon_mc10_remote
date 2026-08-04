@@ -3,86 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Setup</title>
+    <title data-i18n="document.setup">Configuration</title>
     <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="lexicon-page">
-    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
-    <nav class="app-nav" aria-label="Navigation principale">
-        <a href="/">Home</a>
-        <a href="/lexicon">Lexicon</a>
-        <a href="/azur840">Azur</a>
-        <a href="/setup.html" class="active" aria-current="page">Setup</a>
+    <a class="skip-link" href="#main-content" data-i18n="common.skip">Aller au contenu principal</a>
+    <nav class="app-nav" aria-label="Navigation principale" data-i18n-aria-label="common.nav">
+        <a href="/" data-i18n="common.home">Accueil</a>
+        <a href="/lexicon" data-i18n="common.lexicon">Lexicon</a>
+        <a href="/azur840" data-i18n="common.azur">Azur</a>
+        <a href="/setup.html" class="active" aria-current="page" data-i18n="common.setup">Configuration</a>
     </nav>
 
     <main class="wrap" id="main-content">
         <section class="hero">
-            <h1>Setup</h1>
-            <p>Configuration rapide: Wi-Fi, mise a jour firmware et mode debug.</p>
+            <h1 data-i18n="setup.title">Configuration</h1>
+            <p data-i18n="setup.subtitle">Configuration rapide : langue, Wi-Fi, mise à jour du firmware et mode debug.</p>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Configuration Wi-Fi</h2>
+                <h2 data-i18n="setup.language">Langue de l’interface</h2>
+                <span class="badge" data-i18n="setup.languageBadge">Langue</span>
+            </div>
+            <div class="form-grid">
+                <label for="languageSelect" class="muted" data-i18n="setup.languageLabel">Langue préférée</label>
+                <select id="languageSelect" class="full" data-locale-selector data-locale-reload aria-label="Langue préférée" data-i18n-aria-label="setup.languageLabel">
+                    <option value="fr" data-i18n="setup.french">Français</option>
+                    <option value="en" data-i18n="setup.english">English</option>
+                </select>
+            </div>
+            <p class="muted" data-i18n="setup.languageHelp">Ce choix est enregistré dans ce navigateur et appliqué à toutes les pages.</p>
+        </section>
+
+        <section class="panel">
+            <div class="row">
+                <h2 data-i18n="setup.wifi">Configuration Wi-Fi</h2>
                 <span class="badge">Wi-Fi</span>
             </div>
             <div class="form-grid">
-                <select id="ssidSelect" aria-label="Reseau Wi-Fi">
-                    <option value="">Selectionner un reseau...</option>
+                <select id="ssidSelect" aria-label="Réseau Wi-Fi" data-i18n-aria-label="setup.network">
+                    <option value="" data-i18n="setup.selectNetwork">Sélectionner un réseau…</option>
                 </select>
-                <input id="wifiPass" type="password" placeholder="Mot de passe" aria-label="Mot de passe Wi-Fi">
-                <button id="connectWifi" type="button" class="btn primary full">Connecter</button>
-                <button id="refreshWifi" type="button" class="btn full">Scanner les reseaux</button>
+                <input id="wifiPass" type="text" placeholder="Mot de passe Wi-Fi" aria-label="Mot de passe Wi-Fi" data-i18n-placeholder="setup.password" data-i18n-aria-label="setup.password">
+                <button id="connectWifi" type="button" class="btn primary full" data-i18n="setup.connect">Connecter</button>
+                <button id="refreshWifi" type="button" class="btn full" data-i18n="setup.scan">Scanner les réseaux</button>
             </div>
-            <p class="muted" id="wifiStatus" role="status" aria-live="polite">Etat: en attente</p>
+            <p class="muted" id="wifiStatus" role="status" aria-live="polite" data-i18n="setup.waiting">État : en attente</p>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Mise a jour firmware</h2>
+                <h2 data-i18n="setup.firmware">Mise à jour du firmware</h2>
                 <span class="badge">OTA</span>
             </div>
             <form action="/update" method="POST" enctype="multipart/form-data" class="form-grid">
-                <label for="firmwareFile" class="muted">Fichier firmware (.bin)</label>
+                <label for="firmwareFile" class="muted" data-i18n="setup.firmwareFile">Fichier firmware (.bin)</label>
                 <input id="firmwareFile" type="file" name="update" accept=".bin,application/octet-stream" required>
-                <button type="submit" class="btn warn full">Envoyer le firmware</button>
+                <button type="submit" class="btn warn full" data-i18n="setup.uploadFirmware">Envoyer le firmware</button>
             </form>
-            <p class="muted">Selectionnez un fichier .bin compile, puis validez l'envoi. L'ESP redemarre en fin de mise a jour.</p>
+            <p class="muted" data-i18n="setup.firmwareHelp">Sélectionnez un fichier .bin compilé, puis validez l’envoi. L’ESP redémarre à la fin de la mise à jour.</p>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Mode debug</h2>
-                <span id="debugBadge" class="badge" role="status" aria-live="polite">INACTIF</span>
+                <h2 data-i18n="setup.debug">Mode debug</h2>
+                <span id="debugBadge" class="badge" role="status" aria-live="polite" data-i18n="common.inactive">INACTIF</span>
             </div>
             <div class="grid cols-3">
-                <button id="debugOn" type="button" class="action primary">Activer</button>
-                <button id="debugOff" type="button" class="action">Desactiver</button>
-                <button id="debugRefresh" type="button" class="action">Rafraichir</button>
+                <button id="debugOn" type="button" class="action primary" data-i18n="setup.enable">Activer</button>
+                <button id="debugOff" type="button" class="action" data-i18n="setup.disable">Désactiver</button>
+                <button id="debugRefresh" type="button" class="action" data-i18n="common.refresh">Rafraîchir</button>
             </div>
-            <p class="muted">Le mode debug active la sortie de debug serie cote firmware.</p>
+            <p class="muted" data-i18n="setup.debugHelp">Le mode debug active la sortie de diagnostic série du firmware.</p>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Navigation</h2>
-                <span class="badge">Liens</span>
+                <h2 data-i18n="setup.navigation">Navigation</h2>
+                <span class="badge" data-i18n="setup.links">Liens</span>
             </div>
             <div class="grid">
-                <a class="btn" href="/">Retour accueil</a>
-                <a class="btn" href="/setup">Setup avance (historique)</a>
+                <a class="btn" href="/" data-i18n="setup.backHome">Retour à l’accueil</a>
+                <a class="btn" href="/setup" data-i18n="setup.advanced">Configuration avancée (historique)</a>
             </div>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Logs</h2>
-                <span class="muted">diagnostic local</span>
+                <h2 data-i18n="common.logs">Journaux</h2>
+                <span class="muted" data-i18n="common.localDiagnostics">diagnostic local</span>
             </div>
-            <div id="log" class="log" role="log" aria-live="polite" aria-label="Journal de configuration" tabindex="0"></div>
+            <div id="log" class="log" role="log" aria-live="polite" aria-label="Journal de configuration" data-i18n-aria-label="setup.configLog" tabindex="0"></div>
         </section>
     </main>
 
+    <script src="/i18n.js"></script>
     <script>
         (function() {
             const ssidSelect = document.getElementById("ssidSelect");
@@ -103,7 +119,8 @@
             }
 
             function setDebugBadge(enabled) {
-                debugBadge.textContent = enabled ? "ACTIF" : "INACTIF";
+                debugBadge.textContent = enabled ? AppI18n.t("common.active") : AppI18n.t("common.inactive");
+                debugBadge.dataset.i18n = enabled ? "common.active" : "common.inactive";
             }
 
             async function loadWifiNetworks() {
@@ -111,7 +128,12 @@
                 try {
                     const response = await fetch("/wifi_scan", { cache: "no-store" });
                     const data = await response.json();
-                    ssidSelect.innerHTML = "<option value=\"\">Selectionner un reseau...</option>";
+                    ssidSelect.innerHTML = "";
+                    const placeholder = document.createElement("option");
+                    placeholder.value = "";
+                    placeholder.dataset.i18n = "setup.selectNetwork";
+                    placeholder.textContent = AppI18n.t("setup.selectNetwork");
+                    ssidSelect.appendChild(placeholder);
 
                     if (Array.isArray(data.ssids)) {
                         data.ssids.forEach(function(ssid) {

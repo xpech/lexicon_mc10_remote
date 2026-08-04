@@ -3,97 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Lexicon Control</title>
+    <title data-i18n="document.lexicon">Commande Lexicon</title>
     <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="lexicon-page">
-    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
-    <nav class="app-nav" aria-label="Navigation principale">
-        <a href="/">Home</a>
-        <a href="/lexicon" class="active" aria-current="page">Lexicon</a>
-        <a href="/azur840">Azur</a>
-        <a href="/setup.html">Setup</a>
+    <a class="skip-link" href="#main-content" data-i18n="common.skip">Aller au contenu principal</a>
+    <nav class="app-nav" aria-label="Navigation principale" data-i18n-aria-label="common.nav">
+        <a href="/" data-i18n="common.home">Accueil</a>
+        <a href="/lexicon" class="active" aria-current="page" data-i18n="common.lexicon">Lexicon</a>
+        <a href="/azur840" data-i18n="common.azur">Azur</a>
+        <a href="/setup.html" data-i18n="common.setup">Configuration</a>
     </nav>
 
-    <div class="top-panel lexicon" role="group" aria-label="Commandes rapides Lexicon">
-        <button id="topZone1" type="button" class="top-btn" aria-pressed="true">Zone 1</button>
-        <button id="topZone2" type="button" class="top-btn" aria-pressed="false">Zone 2</button>
-        <button id="topLexiconPowerOn" type="button" class="top-btn primary">Power On</button>
-        <button id="topLexiconPowerOff" type="button" class="top-btn warn">Power Off</button>
-        <button id="topLexiconVolUp" type="button" class="top-btn volume-control volume-up">Vol +</button>
-        <button id="topLexiconVolDown" type="button" class="top-btn volume-control volume-down">Vol -</button>
+    <div class="top-panel lexicon" role="group" aria-label="Commandes rapides Lexicon" data-i18n-aria-label="lexicon.quickGroup">
+        <button id="topZone1" type="button" class="top-btn" aria-pressed="true" data-i18n="lexicon.zone1">Zone 1</button>
+        <button id="topZone2" type="button" class="top-btn" aria-pressed="false" data-i18n="lexicon.zone2">Zone 2</button>
+        <button id="topLexiconPowerOn" type="button" class="top-btn primary" data-i18n="common.powerOn">Allumer</button>
+        <button id="topLexiconPowerOff" type="button" class="top-btn warn" data-i18n="common.powerOff">Éteindre</button>
+        <button id="topLexiconVolUp" type="button" class="top-btn volume-control volume-up" data-i18n="common.volumeUp">Volume +</button>
+        <button id="topLexiconVolDown" type="button" class="top-btn volume-control volume-down" data-i18n="common.volumeDown">Volume -</button>
     </div>
 
     <main class="wrap" id="main-content">
         <section class="hero">
             <h1>Lexicon</h1>
-            <p>Télécommande série optimisée mobile. Commandes rapides en haut, commandes avancées en bas.</p>
+            <p data-i18n="lexicon.subtitle">Télécommande série optimisée pour mobile. Commandes rapides en haut, commandes avancées en bas.</p>
         </section>
 
         <section class="panel status">
             <div class="row">
-                <h2>Statut liaison</h2>
+                <h2 data-i18n="lexicon.linkStatus">État de la liaison</h2>
                 <span id="statusBadge" class="badge" role="status" aria-live="polite" aria-atomic="true">IDLE</span>
             </div>
             <div class="zone-picker" id="zonePicker">
-                <button type="button" data-zone="01" class="active" aria-pressed="true">Zone 1</button>
-                <button type="button" data-zone="02" aria-pressed="false">Zone 2</button>
+                <button type="button" data-zone="01" class="active" aria-pressed="true" data-i18n="lexicon.zone1">Zone 1</button>
+                <button type="button" data-zone="02" aria-pressed="false" data-i18n="lexicon.zone2">Zone 2</button>
             </div>
             <p class="muted" id="currentRoute">Route: /lexicon_rc5</p>
-            <div class="log" id="log" role="log" aria-live="polite" aria-label="Journal des commandes Lexicon" tabindex="0"></div>
+            <div class="log" id="log" role="log" aria-live="polite" aria-label="Journal des commandes Lexicon" data-i18n-aria-label="lexicon.commandLog" tabindex="0"></div>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Actions essentielles</h2>
-                <span class="muted">Contrôles tactiles</span>
+                <h2 data-i18n="lexicon.essential">Actions essentielles</h2>
+                <span class="muted" data-i18n="lexicon.touch">Contrôles tactiles</span>
             </div>
             <div class="grid" id="quickActions"></div>
 
-            <h2 class="section-title">Sources</h2>
+            <h2 class="section-title" data-i18n="lexicon.sources">Sources</h2>
             <div class="chips" id="sourceActions"></div>
 
-            <h2 class="section-title">Navigation</h2>
+            <h2 class="section-title" data-i18n="lexicon.navigation">Navigation</h2>
             <div class="dpad" id="navPad"></div>
 
-            <h2 class="section-title">Transport</h2>
+            <h2 class="section-title" data-i18n="lexicon.transport">Lecture</h2>
             <div class="grid cols-4" id="transportActions"></div>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Commandes avancées</h2>
+                <h2 data-i18n="lexicon.advanced">Commandes avancées</h2>
                 <span class="muted">RC5 + direct</span>
             </div>
 
             <details>
-                <summary>Modes son et affichage</summary>
+                <summary data-i18n="lexicon.audioModes">Modes son et affichage</summary>
                 <div class="grid cols-3" id="advancedAudio"></div>
             </details>
 
             <details>
-                <summary>Zone 2 presets</summary>
+                <summary data-i18n="lexicon.zone2Presets">Préréglages Zone 2</summary>
                 <div class="grid cols-3" id="zone2Actions"></div>
             </details>
 
             <details>
-                <summary>Commande RC5 manuelle</summary>
+                <summary data-i18n="lexicon.manualRc5">Commande RC5 manuelle</summary>
                 <div>
                     <div class="form-grid">
-                        <input id="manualRc5C1" value="0x10" aria-label="Commande 1">
-                        <input id="manualRc5C2" value="0x10" aria-label="Commande 2">
-                        <button class="ghost-btn full" id="sendManualRc5" type="button">Envoyer RC5</button>
+                        <input id="manualRc5C1" value="0x10" aria-label="Commande 1" data-i18n-aria-label="lexicon.command1">
+                        <input id="manualRc5C2" value="0x10" aria-label="Commande 2" data-i18n-aria-label="lexicon.command2">
+                        <button class="ghost-btn full" id="sendManualRc5" type="button" data-i18n="lexicon.sendRc5">Envoyer RC5</button>
                     </div>
                 </div>
             </details>
 
             <details>
-                <summary>Commande directe manuelle</summary>
+                <summary data-i18n="lexicon.manualDirect">Commande directe manuelle</summary>
                 <div>
                     <div class="form-grid">
-                        <input id="manualCmd" value="0x1D" aria-label="Commande">
-                        <input id="manualData" value="" placeholder="data optionnelle" aria-label="Data">
-                        <button class="ghost-btn full" id="sendManualCmd" type="button">Envoyer commande directe</button>
+                        <input id="manualCmd" value="0x1D" aria-label="Commande" data-i18n-aria-label="lexicon.command">
+                        <input id="manualData" value="" placeholder="données optionnelles" aria-label="Données" data-i18n-placeholder="lexicon.optionalData" data-i18n-aria-label="lexicon.data">
+                        <button class="ghost-btn full" id="sendManualCmd" type="button" data-i18n="lexicon.sendDirect">Envoyer la commande directe</button>
                     </div>
                 </div>
             </details>
@@ -102,6 +102,7 @@
 
     <p class="footer">Coolhome Lexicon • interface mobile first</p>
 
+    <script src="/i18n.js"></script>
     <script>
         (function() {
             const state = {
@@ -115,12 +116,12 @@
             const logEl = document.getElementById("log");
 
             const quickActions = [
-                { label: "Standby", c1: "0x10", c2: "0x0C", cls: "warn" },
-                { label: "Power On", c1: "0x10", c2: "0x7B", cls: "primary" },
-                { label: "Power Off", c1: "0x10", c2: "0x7C", cls: "warn" },
-                { label: "Mute", c1: "0x10", c2: "0x0D" },
-                { label: "Vol +", c1: "0x10", c2: "0x10", cls: "primary" },
-                { label: "Vol -", c1: "0x10", c2: "0x11" }
+                { label: "Veille", key: "lexicon.standby", c1: "0x10", c2: "0x0C", cls: "warn" },
+                { label: "Allumer", key: "common.powerOn", c1: "0x10", c2: "0x7B", cls: "primary" },
+                { label: "Éteindre", key: "common.powerOff", c1: "0x10", c2: "0x7C", cls: "warn" },
+                { label: "Silence", key: "lexicon.mute", c1: "0x10", c2: "0x0D" },
+                { label: "Volume +", key: "common.volumeUp", c1: "0x10", c2: "0x10", cls: "primary" },
+                { label: "Volume -", key: "common.volumeDown", c1: "0x10", c2: "0x11" }
             ];
 
             const sourceActions = [
@@ -137,25 +138,25 @@
 
             const navActions = [
                 { blank: true },
-                { label: "Up", c1: "0x10", c2: "0x56" },
+                { label: "Haut", key: "lexicon.up", c1: "0x10", c2: "0x56" },
                 { blank: true },
-                { label: "Left", c1: "0x10", c2: "0x51" },
+                { label: "Gauche", key: "lexicon.left", c1: "0x10", c2: "0x51" },
                 { label: "OK", c1: "0x10", c2: "0x57", cls: "primary" },
-                { label: "Right", c1: "0x10", c2: "0x50" },
-                { label: "Home", c1: "0x10", c2: "0x2B" },
-                { label: "Down", c1: "0x10", c2: "0x55" },
-                { label: "Menu", c1: "0x10", c2: "0x52" }
+                { label: "Droite", key: "lexicon.right", c1: "0x10", c2: "0x50" },
+                { label: "Accueil", key: "common.home", c1: "0x10", c2: "0x2B" },
+                { label: "Bas", key: "lexicon.down", c1: "0x10", c2: "0x55" },
+                { label: "Menu", key: "lexicon.menu", c1: "0x10", c2: "0x52" }
             ];
 
             const transportActions = [
-                { label: "Play", c1: "0x10", c2: "0x35" },
-                { label: "Pause", c1: "0x10", c2: "0x30" },
-                { label: "Stop", c1: "0x10", c2: "0x36" },
-                { label: "Display", c1: "0x10", c2: "0x3A" },
-                { label: "Rew", c1: "0x10", c2: "0x79" },
-                { label: "Fwd", c1: "0x10", c2: "0x34" },
-                { label: "Prev", c1: "0x10", c2: "0x21" },
-                { label: "Next", c1: "0x10", c2: "0x0B" }
+                { label: "Lecture", key: "lexicon.play", c1: "0x10", c2: "0x35" },
+                { label: "Pause", key: "lexicon.pause", c1: "0x10", c2: "0x30" },
+                { label: "Arrêt", key: "lexicon.stop", c1: "0x10", c2: "0x36" },
+                { label: "Affichage", key: "lexicon.display", c1: "0x10", c2: "0x3A" },
+                { label: "Retour rapide", key: "lexicon.rewind", c1: "0x10", c2: "0x79" },
+                { label: "Avance rapide", key: "lexicon.forward", c1: "0x10", c2: "0x34" },
+                { label: "Précédent", key: "lexicon.previous", c1: "0x10", c2: "0x21" },
+                { label: "Suivant", key: "lexicon.next", c1: "0x10", c2: "0x0B" }
             ];
 
             const advancedAudio = [
@@ -164,8 +165,8 @@
                 { label: "DTS Neo 6", c1: "0x10", c2: "0x6F" },
                 { label: "Logic7", c1: "0x10", c2: "0x72" },
                 { label: "Virtual X", c1: "0x10", c2: "0x73" },
-                { label: "Display Off", c1: "0x10", c2: "0x1F" },
-                { label: "Info panel", c1: "0x10", c2: "0x37" },
+                { label: "Éteindre l’affichage", key: "lexicon.displayOff", c1: "0x10", c2: "0x1F" },
+                { label: "Panneau d’information", key: "lexicon.infoPanel", c1: "0x10", c2: "0x37" },
                 { label: "Sub +0.5", c1: "0x10", c2: "0x69" },
                 { label: "Sub -0.5", c1: "0x10", c2: "0x6C" }
             ];
@@ -297,7 +298,10 @@
                 const btn = document.createElement("button");
                 btn.type = "button";
                 btn.className = className + (item.cls ? " " + item.cls : "");
-                btn.textContent = item.label;
+                btn.textContent = item.key ? AppI18n.t(item.key) : item.label;
+                if (item.key) {
+                    btn.dataset.i18n = item.key;
+                }
                 btn.addEventListener("click", function() {
                     sendRc5(item.c1, item.c2, item.label);
                 });

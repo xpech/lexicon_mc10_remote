@@ -3,43 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Azur 840</title>
+  <title data-i18n="document.azur">Commande Azur 840</title>
   <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="azur-page">
-  <a class="skip-link" href="#main-content">Aller au contenu principal</a>
-  <nav class="app-nav" aria-label="Navigation principale">
-    <a href="/">Home</a>
-    <a href="/lexicon">Lexicon</a>
-    <a href="/azur840" class="active" aria-current="page">Azur</a>
-    <a href="/setup.html">Setup</a>
+  <a class="skip-link" href="#main-content" data-i18n="common.skip">Aller au contenu principal</a>
+  <nav class="app-nav" aria-label="Navigation principale" data-i18n-aria-label="common.nav">
+    <a href="/" data-i18n="common.home">Accueil</a>
+    <a href="/lexicon" data-i18n="common.lexicon">Lexicon</a>
+    <a href="/azur840" class="active" aria-current="page" data-i18n="common.azur">Azur</a>
+    <a href="/setup.html" data-i18n="common.setup">Configuration</a>
   </nav>
 
-  <div class="top-panel azur" role="group" aria-label="Commandes rapides Azur">
-    <button id="topPowerOn" type="button" class="top-btn primary">Power On</button>
-    <button id="topPowerOff" type="button" class="top-btn warn">Power Off</button>
-    <button id="topVolUp" type="button" class="top-btn volume-control volume-up">Volume +</button>
-    <button id="topVolDown" type="button" class="top-btn volume-control volume-down">Volume -</button>
+  <div class="top-panel azur" role="group" aria-label="Commandes rapides Azur" data-i18n-aria-label="azur.quickGroup">
+    <button id="topPowerOn" type="button" class="top-btn primary" data-i18n="common.powerOn">Allumer</button>
+    <button id="topPowerOff" type="button" class="top-btn warn" data-i18n="common.powerOff">Éteindre</button>
+    <button id="topVolUp" type="button" class="top-btn volume-control volume-up" data-i18n="common.volumeUp">Volume +</button>
+    <button id="topVolDown" type="button" class="top-btn volume-control volume-down" data-i18n="common.volumeDown">Volume -</button>
   </div>
 
   <main class="wrap" id="main-content">
     <section class="hero">
       <h1>Azur 840 RS232</h1>
-      <p>Commandes rapides, mode protocole structure et mode brut pour diagnostic.</p>
+      <p data-i18n="azur.subtitle">Commandes rapides, protocole structuré et mode brut pour le diagnostic.</p>
     </section>
 
     <section class="panel status">
       <div class="row">
-        <h2>Etat lien serie</h2>
+        <h2 data-i18n="azur.linkStatus">État de la liaison série</h2>
         <span class="badge" id="statusBadge">READY</span>
         <span id="statusAnnouncement" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></span>
       </div>
       <p class="muted" id="routeInfo">Route: /azur840_api</p>
-      <p class="muted" id="decodedInfo">Decodeur: en attente de trame</p>
+      <p class="muted" id="decodedInfo" data-i18n="azur.decoderWaiting">Décodeur : en attente de trame</p>
       <div class="poll-row">
-        <button type="button" class="btn mini" id="togglePoll">Polling: OFF</button>
-        <label class="muted" for="pollInterval">Intervalle</label>
-        <select id="pollInterval" class="poll-select" title="Polling interval" aria-label="Polling interval">
+        <button type="button" class="btn mini" id="togglePoll" data-i18n="azur.pollingOff">Interrogation : NON</button>
+        <label class="muted" for="pollInterval" data-i18n="azur.interval">Intervalle</label>
+        <select id="pollInterval" class="poll-select" title="Intervalle d’interrogation" aria-label="Intervalle d’interrogation" data-i18n-title="azur.pollingInterval" data-i18n-aria-label="azur.pollingInterval">
           <option value="5000">5s</option>
           <option value="10000" selected>10s</option>
           <option value="15000">15s</option>
@@ -47,81 +47,82 @@
         </select>
       </div>
       <div class="state-grid" id="stateGrid">
-        <div class="state-card"><div class="state-label">Power</div><div class="state-value" id="stPower">Unknown</div></div>
-        <div class="state-card"><div class="state-label">Mute</div><div class="state-value" id="stMute">Unknown</div></div>
-        <div class="state-card"><div class="state-label">Volume</div><div class="state-value" id="stVolume">Unknown</div></div>
-        <div class="state-card"><div class="state-label">Input</div><div class="state-value" id="stInput">Unknown</div></div>
-        <div class="state-card"><div class="state-label">Balance</div><div class="state-value" id="stBalance">Unknown</div></div>
-        <div class="state-card"><div class="state-label">Direct</div><div class="state-value" id="stDirect">Unknown</div></div>
+        <div class="state-card"><div class="state-label" data-i18n="azur.power">Alimentation</div><div class="state-value" id="stPower">Inconnu</div></div>
+        <div class="state-card"><div class="state-label" data-i18n="azur.mute">Silence</div><div class="state-value" id="stMute">Inconnu</div></div>
+        <div class="state-card"><div class="state-label" data-i18n="azur.volume">Volume</div><div class="state-value" id="stVolume">Inconnu</div></div>
+        <div class="state-card"><div class="state-label" data-i18n="azur.input">Entrée</div><div class="state-value" id="stInput">Inconnu</div></div>
+        <div class="state-card"><div class="state-label" data-i18n="azur.balance">Balance</div><div class="state-value" id="stBalance">Inconnu</div></div>
+        <div class="state-card"><div class="state-label" data-i18n="azur.direct">Direct</div><div class="state-value" id="stDirect">Inconnu</div></div>
       </div>
-      <div class="log" id="log" aria-label="Journal des commandes Azur" tabindex="0"></div>
+      <div class="log" id="log" aria-label="Journal des commandes Azur" data-i18n-aria-label="azur.commandLog" tabindex="0"></div>
     </section>
 
     <section class="panel">
       <div class="row">
-        <h2>Commandes rapides</h2>
-        <span class="muted">Group 1</span>
+        <h2 data-i18n="azur.quickCommands">Commandes rapides</h2>
+        <span class="muted" data-i18n="azur.group1">Groupe 1</span>
       </div>
       <div class="grid" id="quick"></div>
 
-      <h2 class="section-title">Inputs</h2>
+      <h2 class="section-title" data-i18n="azur.inputs">Entrées</h2>
       <div class="grid cols-3" id="inputs"></div>
 
-      <h2 class="section-title">Volume</h2>
+      <h2 class="section-title" data-i18n="azur.volume">Volume</h2>
       <div class="grid" id="volume"></div>
 
-      <h2 class="section-title">Reglages</h2>
+      <h2 class="section-title" data-i18n="azur.settings">Réglages</h2>
       <div class="grid" id="settings"></div>
     </section>
 
     <section class="panel">
       <div class="row">
-        <h2>Catalogue Group 1 (01-26)</h2>
-        <span class="muted">Presets selon doc RS232</span>
+        <h2 data-i18n="azur.catalog">Catalogue Groupe 1 (01–26)</h2>
+        <span class="muted" data-i18n="azur.presets">Préréglages selon la documentation RS232</span>
       </div>
       <div class="catalog" id="catalog"></div>
     </section>
 
     <section class="panel">
       <div class="row">
-        <h2>Mode protocole</h2>
+        <h2 data-i18n="azur.protocolMode">Mode protocole</h2>
         <span class="muted">#G,NN,DATA</span>
       </div>
       <div class="form">
-        <label class="sr-only" for="group">Groupe du protocole</label>
+        <label class="sr-only" for="group" data-i18n="azur.group">Groupe du protocole</label>
         <input id="group" value="1" placeholder="group 1..5">
-        <label class="sr-only" for="command">Numéro de commande</label>
+        <label class="sr-only" for="command" data-i18n="azur.commandNumber">Numéro de commande</label>
         <input id="command" value="11" placeholder="command 00..99">
-        <label class="sr-only" for="data">Données de la commande</label>
+        <label class="sr-only" for="data" data-i18n="azur.commandData">Données de la commande</label>
         <input id="data" class="full" value="1" placeholder="data (max 10 chars)">
-        <label class="sr-only" for="baud">Vitesse en bauds</label>
+        <label class="sr-only" for="baud" data-i18n="azur.baud">Vitesse en bauds</label>
         <input id="baud" value="9600" placeholder="baud">
-        <label class="sr-only" for="timeout">Délai d’attente en millisecondes</label>
+        <label class="sr-only" for="timeout" data-i18n="azur.timeout">Délai d’attente en millisecondes</label>
         <input id="timeout" value="1200" placeholder="timeout ms">
-        <button id="sendStructured" class="btn primary full" type="button">Envoyer commande structuree</button>
+        <button id="sendStructured" class="btn primary full" type="button" data-i18n="azur.sendStructured">Envoyer la commande structurée</button>
       </div>
 
-      <h2 class="section-title">Mode brut</h2>
+      <h2 class="section-title" data-i18n="azur.rawMode">Mode brut</h2>
       <div class="form">
-        <label class="sr-only" for="tx">Trame ASCII à transmettre</label>
+        <label class="sr-only" for="tx" data-i18n="azur.asciiFrame">Trame ASCII à transmettre</label>
         <input id="tx" class="full" placeholder="tx ascii ex: #1,11,1">
-        <label class="sr-only" for="txHex">Trame hexadécimale à transmettre</label>
+        <label class="sr-only" for="txHex" data-i18n="azur.hexFrame">Trame hexadécimale à transmettre</label>
         <input id="txHex" class="full" placeholder="tx_hex ex: 23312C31312C31">
-        <select id="suffix" title="Suffix" aria-label="Suffix">
+        <select id="suffix" title="Suffixe" aria-label="Suffixe" data-i18n-title="azur.suffix" data-i18n-aria-label="azur.suffix">
           <option value="cr" selected>suffix CR</option>
           <option value="lf">suffix LF</option>
           <option value="crlf">suffix CRLF</option>
           <option value="none">suffix none</option>
         </select>
-        <select id="response" title="Response mode" aria-label="Response mode">
+        <select id="response" title="Format de réponse" aria-label="Format de réponse" data-i18n-title="azur.responseMode" data-i18n-aria-label="azur.responseMode">
           <option value="ascii" selected>response ascii</option>
           <option value="hex">response hex</option>
         </select>
-        <button id="sendRaw" class="btn full" type="button">Envoyer brut</button>
+        <button id="sendRaw" class="btn full" type="button" data-i18n="azur.sendRaw">Envoyer en mode brut</button>
       </div>
     </section>
   </main>
 
+  <script src="/i18n.js"></script>
   <script>
     (function () {
       const statusBadge = document.getElementById('statusBadge');
@@ -140,12 +141,12 @@
       };
 
       const azurState = {
-        power: 'Unknown',
-        mute: 'Unknown',
-        volume: 'Unknown',
-        input: 'Unknown',
-        balance: 'Unknown',
-        direct: 'Unknown'
+        power: AppI18n.t('common.unknown'),
+        mute: AppI18n.t('common.unknown'),
+        volume: AppI18n.t('common.unknown'),
+        input: AppI18n.t('common.unknown'),
+        balance: AppI18n.t('common.unknown'),
+        direct: AppI18n.t('common.unknown')
       };
 
       let pollEnabled = false;
@@ -160,12 +161,12 @@
       ];
 
       const quickButtons = [
-        { label: 'Power On', g: 1, c: 11, d: '1', cls: 'primary' },
-        { label: 'Standby', g: 1, c: 11, d: '0', cls: 'warn' },
-        { label: 'Mute On', g: 1, c: 12, d: '1' },
-        { label: 'Mute Off', g: 1, c: 12, d: '0' },
-        { label: 'Direct On', g: 1, c: 26, d: '1' },
-        { label: 'Direct Off', g: 1, c: 26, d: '0' }
+        { label: 'Allumer', key: 'common.powerOn', g: 1, c: 11, d: '1', cls: 'primary' },
+        { label: 'Veille', key: 'azur.standby', g: 1, c: 11, d: '0', cls: 'warn' },
+        { label: 'Activer le silence', key: 'azur.muteOn', g: 1, c: 12, d: '1' },
+        { label: 'Désactiver le silence', key: 'azur.muteOff', g: 1, c: 12, d: '0' },
+        { label: 'Activer Direct', key: 'azur.directOn', g: 1, c: 26, d: '1' },
+        { label: 'Désactiver Direct', key: 'azur.directOff', g: 1, c: 26, d: '0' }
       ];
 
       const inputButtons = [
@@ -176,15 +177,15 @@
         { label: 'Input 5', g: 1, c: 5, d: '' },
         { label: 'Input 6', g: 1, c: 6, d: '' },
         { label: 'Input 7', g: 1, c: 7, d: '' },
-        { label: 'Input Up', g: 1, c: 9, d: '' },
-        { label: 'Input Down', g: 1, c: 10, d: '' }
+        { label: 'Entrée suivante', key: 'azur.inputUp', g: 1, c: 9, d: '' },
+        { label: 'Entrée précédente', key: 'azur.inputDown', g: 1, c: 10, d: '' }
       ];
 
       const volumeButtons = [
-        { label: 'Vol +', g: 1, c: 14, d: '' },
-        { label: 'Vol -', g: 1, c: 15, d: '' },
-        { label: 'Vol Stop', g: 1, c: 16, d: '' },
-        { label: 'Set Vol 20', g: 1, c: 13, d: '20' }
+        { label: 'Volume +', key: 'common.volumeUp', g: 1, c: 14, d: '' },
+        { label: 'Volume -', key: 'common.volumeDown', g: 1, c: 15, d: '' },
+        { label: 'Arrêter le volume', key: 'azur.volumeStop', g: 1, c: 16, d: '' },
+        { label: 'Régler le volume à 20', key: 'azur.setVolume20', g: 1, c: 13, d: '20' }
       ];
 
       const settingButtons = [
@@ -327,7 +328,9 @@
 
       function setPollingUi() {
         const btn = document.getElementById('togglePoll');
-        btn.textContent = pollEnabled ? 'Polling: ON' : 'Polling: OFF';
+        const key = pollEnabled ? 'azur.pollingOn' : 'azur.pollingOff';
+        btn.dataset.i18n = key;
+        btn.textContent = AppI18n.t(key);
         btn.className = pollEnabled ? 'btn mini primary' : 'btn mini';
       }
 
@@ -521,7 +524,10 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn' + (item.cls ? ' ' + item.cls : '');
-        btn.textContent = item.label;
+        btn.textContent = item.key ? AppI18n.t(item.key) : item.label;
+        if (item.key) {
+          btn.dataset.i18n = item.key;
+        }
         btn.addEventListener('click', onClick);
         return btn;
       }
@@ -583,7 +589,8 @@
         const prefillBtn = document.createElement('button');
         prefillBtn.type = 'button';
         prefillBtn.className = 'btn mini';
-        prefillBtn.textContent = 'Prefill';
+        prefillBtn.textContent = AppI18n.t('azur.prefill');
+        prefillBtn.dataset.i18n = 'azur.prefill';
         prefillBtn.addEventListener('click', function () {
           document.getElementById('group').value = '1';
           document.getElementById('command').value = String(parseInt(cmd.c, 10));
@@ -594,7 +601,8 @@
         const sendBtn = document.createElement('button');
         sendBtn.type = 'button';
         sendBtn.className = 'btn mini primary';
-        sendBtn.textContent = 'Envoyer';
+        sendBtn.textContent = AppI18n.t('common.send');
+        sendBtn.dataset.i18n = 'common.send';
         sendBtn.addEventListener('click', function () {
           callApi({
             group: '1',

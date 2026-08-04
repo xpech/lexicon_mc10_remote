@@ -3,64 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Accueil telecommande</title>
+    <title data-i18n="document.home">Accueil de la télécommande</title>
     <link rel="stylesheet" href="/shared-ui.css">
 </head>
 <body class="lexicon-page">
-    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
-    <nav class="app-nav" aria-label="Navigation principale">
-        <a href="/" class="active" aria-current="page">Home</a>
-        <a href="/lexicon">Lexicon</a>
-        <a href="/azur840">Azur</a>
-        <a href="/setup.html">Setup</a>
+    <a class="skip-link" href="#main-content" data-i18n="common.skip">Aller au contenu principal</a>
+    <nav class="app-nav" aria-label="Navigation principale" data-i18n-aria-label="common.nav">
+        <a href="/" class="active" aria-current="page" data-i18n="common.home">Accueil</a>
+        <a href="/lexicon" data-i18n="common.lexicon">Lexicon</a>
+        <a href="/azur840" data-i18n="common.azur">Azur</a>
+        <a href="/setup.html" data-i18n="common.setup">Configuration</a>
     </nav>
 
     <main class="wrap" id="main-content">
         <section class="hero">
-            <h1>Centre de commande</h1>
-            <p>Acces rapide au Lexicon, au setup et aux commandes d'alimentation generale.</p>
+            <h1 data-i18n="home.title">Centre de commande</h1>
+            <p data-i18n="home.subtitle">Accès rapide au Lexicon, à la configuration et aux commandes d’alimentation générale.</p>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Power general (pin)</h2>
-                <span id="powerState" class="badge" role="status" aria-live="polite">ETAT INCONNU</span>
+                <h2 data-i18n="home.generalPower">Alimentation générale</h2>
+                <span id="powerState" class="badge" role="status" aria-live="polite" data-i18n="home.unknownState">ÉTAT INCONNU</span>
             </div>
             <div class="grid cols-3" aria-live="polite" aria-atomic="true">
-                <button id="powerOn" type="button" class="action primary">Power ON</button>
-                <button id="powerOff" type="button" class="action warn">Power OFF</button>
-                <button id="refreshState" type="button" class="action">Rafraichir</button>
+                <button id="powerOn" type="button" class="action primary" data-i18n="common.powerOn">Allumer</button>
+                <button id="powerOff" type="button" class="action warn" data-i18n="common.powerOff">Éteindre</button>
+                <button id="refreshState" type="button" class="action" data-i18n="home.refreshState">Rafraîchir l’état</button>
             </div>
-            <p class="muted">Ces boutons appellent /on et /off. Le pin pilote est celui configure dans le firmware (POWER_PIN).</p>
+            <p class="muted" data-i18n="home.powerHelp">Ces boutons appellent /on et /off. La broche pilotée est celle configurée dans le firmware (POWER_PIN).</p>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Capteurs</h2>
-                <span class="muted">mesures locales</span>
+                <h2 data-i18n="home.sensors">Capteurs</h2>
+                <span class="muted" data-i18n="home.localReadings">mesures locales</span>
             </div>
             <div class="grid cols-3">
                 <div class="action">
-                    <strong>Temperature</strong><br>
+                    <strong data-i18n="home.temperature">Température</strong><br>
                     <span id="tempValue">--.- °C</span>
                 </div>
                 <div class="action">
-                    <strong>Humidite</strong><br>
+                    <strong data-i18n="home.humidity">Humidité</strong><br>
                     <span id="humValue">--.- %</span>
                 </div>
-                <button id="refreshSensors" type="button" class="action">Rafraichir capteurs</button>
+                <button id="refreshSensors" type="button" class="action" data-i18n="home.refreshSensors">Rafraîchir les capteurs</button>
             </div>
         </section>
 
         <section class="panel">
             <div class="row">
-                <h2>Logs</h2>
-                <span class="muted">diagnostic local</span>
+                <h2 data-i18n="common.logs">Journaux</h2>
+                <span class="muted" data-i18n="common.localDiagnostics">diagnostic local</span>
             </div>
-            <div id="log" class="log" role="log" aria-live="polite" aria-label="Journal des opérations" tabindex="0"></div>
+            <div id="log" class="log" role="log" aria-live="polite" aria-label="Journal des opérations" data-i18n-aria-label="home.operationLog" tabindex="0"></div>
         </section>
     </main>
 
+    <script src="/i18n.js"></script>
     <script>
         (function() {
             const stateBadge = document.getElementById("powerState");
@@ -88,10 +89,10 @@
 
             function setBadge(isOn) {
                 if (isOn === null) {
-                    stateBadge.textContent = "ETAT INCONNU";
+                    stateBadge.textContent = AppI18n.t("home.unknownState");
                     return;
                 }
-                stateBadge.textContent = isOn ? "POWER ON" : "POWER OFF";
+                stateBadge.textContent = isOn ? AppI18n.t("common.powerOn") : AppI18n.t("common.powerOff");
             }
 
             function setSensors(temperature, humidity) {

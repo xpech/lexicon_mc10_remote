@@ -724,6 +724,11 @@ void setup()
   server.on("/home", handleIndexPage);
   server.on("/setup", handleSetupPage);
   server.on("/setup.html", handleSetupPage);
+  server.on("/i18n.js", HTTP_GET, []() {
+    if (!sendFsFile("/i18n.js", "application/javascript")) {
+      server.send(404, "text/plain", "i18n.js not found in LittleFS");
+    }
+  });
   server.on("/wifi_scan", HTTP_GET, handleWifiScanApi);
   server.on("/wifi_connect", HTTP_GET, handleWifiConnectApi);
   server.on("/wifi_connect", HTTP_POST, handleWifiConnectApi);
