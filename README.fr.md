@@ -1,6 +1,6 @@
 # Lexicon MC-10 Remote (ESP32)
 
-[Français](README.md) | [English](README.en.md)
+[English](README.md) | [Français](README.fr.md)
 
 > **Avertissement — projet indépendant**
 >
@@ -23,13 +23,26 @@ Le projet reutilise une base historique "coolhome" (chauffage/arrosage + remonte
 
 ## Stack technique
 
-- Carte cible: ESP32 (environnement PlatformIO: `wemos_d1_mini32`)
+- Carte de référence: **Wemos D1 mini ESP32** (environnement PlatformIO: `wemos_d1_mini32`)
 - Framework: Arduino
 - Serveur HTTP embarque: WebServer
 - FS embarque: LittleFS (pages web dans `data/`)
 - Liaison serie logicielle:
   - Lexicon: RX GPIO 18, TX GPIO 19
   - Azur 840: RX GPIO 16, TX GPIO 17
+
+## Matériel de référence et liaison RS232
+
+> **Attention : la carte de référence est un Wemos D1 mini ESP32. Il existe également un Wemos D1 mini basé sur l'ESP8266, qui n'est pas la cible prévue par cette configuration. Vérifiez soigneusement le modèle avant de compiler, de flasher ou de réaliser le câblage.**
+
+La liaison avec les appareils audio nécessite des convertisseurs de niveau série compatibles avec la logique 3,3 V de l'ESP32 :
+
+- ***un module TTL vers RS232 pour le Lexicon MC-10 ;***
+- ***un second module TTL vers RS232 si l'Azur 840 doit également être piloté.***
+
+Ces convertisseurs utilisent fréquemment un **MAX3232** pour adapter les niveaux électriques. Pour faciliter et fiabiliser le câblage, privilégiez un module intégrant directement un **connecteur DB9**. Avant le branchement, vérifiez que le module accepte une logique TTL de 3,3 V ainsi que le genre du connecteur, son brochage et son câblage DTE/DCE par rapport à la documentation de l'appareil piloté.
+
+Un port RS232 utilise des niveaux électriques incompatibles avec les GPIO de l'ESP32. Il ne faut donc jamais relier directement les broches RS232 du Lexicon ou de l'Azur aux GPIO de la carte.
 
 ## Arborescence utile
 
@@ -45,8 +58,9 @@ Le projet reutilise une base historique "coolhome" (chauffage/arrosage + remonte
 ## Prerequis
 
 - PlatformIO Core installe (`pio` ou `platformio` dans le PATH)
-- Carte ESP32 connectee en USB
-- Cablage UART adapte aux equipements pilotes
+- Wemos D1 mini **ESP32** connecté en USB, et non la variante ESP8266
+- Un module TTL vers RS232 compatible 3,3 V par appareil audio piloté
+- Câblage UART adapté aux équipements pilotés
 
 ## Build et flash firmware
 

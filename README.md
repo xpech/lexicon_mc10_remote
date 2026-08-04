@@ -1,6 +1,6 @@
 # Lexicon MC-10 Remote (ESP32)
 
-[Français](README.md) | [English](README.en.md)
+[English](README.md) | [Français](README.fr.md)
 
 > **Disclaimer — independent project**
 >
@@ -23,13 +23,26 @@ The project reuses a legacy "coolhome" codebase for heating, irrigation, and tem
 
 ## Technical stack
 
-- Target board: ESP32 (PlatformIO environment: `wemos_d1_mini32`)
+- Reference board: **Wemos D1 mini ESP32** (PlatformIO environment: `wemos_d1_mini32`)
 - Framework: Arduino
 - Embedded HTTP server: WebServer
 - Embedded filesystem: LittleFS (web pages in `data/`)
 - Software serial connections:
   - Lexicon: RX GPIO 18, TX GPIO 19
   - Azur 840: RX GPIO 16, TX GPIO 17
+
+## Reference hardware and RS232 connection
+
+> **Warning: the reference board is a Wemos D1 mini ESP32. A Wemos D1 mini based on the ESP8266 also exists and is not the target of this configuration. Check the exact board model carefully before building, flashing, or wiring the hardware.**
+
+Connections to the audio equipment require serial level converters compatible with the ESP32's 3.3 V logic:
+
+- ***one TTL-to-RS232 module for the Lexicon MC-10;***
+- ***a second TTL-to-RS232 module when the Azur 840 is also controlled.***
+
+These converters commonly use a **MAX3232** level-shifter. For easier and more reliable wiring, prefer a module with an integrated **DB9 connector**. Before connecting it, verify that the module accepts 3.3 V TTL logic and check its DB9 gender, pinout, and DTE/DCE wiring against the controlled device's documentation.
+
+An RS232 port uses electrical levels that are incompatible with the ESP32 GPIO pins. Never connect the Lexicon or Azur RS232 pins directly to the board's GPIO pins.
 
 ## Useful project structure
 
@@ -45,7 +58,8 @@ The project reuses a legacy "coolhome" codebase for heating, irrigation, and tem
 ## Requirements
 
 - PlatformIO Core installed (`pio` or `platformio` available in `PATH`)
-- ESP32 board connected over USB
+- Wemos D1 mini **ESP32** connected over USB, not the ESP8266 variant
+- One 3.3 V-compatible TTL-to-RS232 module for each controlled audio device
 - UART wiring suitable for the controlled equipment
 
 ## Build and flash the firmware
