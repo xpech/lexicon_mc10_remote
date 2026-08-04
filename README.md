@@ -1,70 +1,77 @@
 # Lexicon MC-10 Remote (ESP32)
 
-Ce projet transforme un ESP32 en telecommande web locale pour un systeme audio haut de gamme:
+[Français](README.md) | [English](README.en.md)
 
-- Lexicon MC-10 (commande principale)
-- Preampli Azur 840 (commande serie)
-- Pilotage d'alimentation (mise sous tension globale)
+> **Disclaimer — independent project**
+>
+> Lexicon® and Harman Kardon® are trademarks of HARMAN International Industries, Incorporated, registered in the United States and/or other countries. This independent project has no connection with HARMAN, Lexicon, or Harman Kardon and is not affiliated with, sponsored by, or endorsed by any of those companies. It is developed solely out of a passion for keeping high-quality audio equipment working.
 
-Le projet reutilise une base historique "coolhome" (chauffage/arrosage + remontee de temperature) et l'etend vers un usage audio/video.
+This project turns an ESP32 into a local web remote control for a high-end audio system:
 
-## Objectifs
+- Lexicon MC-10 (main control)
+- Azur 840 preamplifier (serial control)
+- General power control
 
-- Fournir une interface web locale simple et rapide pour piloter le Lexicon MC-10.
-- Ajouter le pilotage du preampli Azur 840.
-- Conserver les briques existantes (reseau, OTA, capteurs, telemetry) quand elles sont utiles.
-- Permettre une evolution progressive vers une telecommande "full web" unifiee.
+The project reuses a legacy "coolhome" codebase for heating, irrigation, and temperature reporting, and extends it for audio/video use.
 
-## Stack technique
+## Goals
 
-- Carte cible: ESP32 (environnement PlatformIO: `wemos_d1_mini32`)
+- Provide a simple and responsive local web interface for controlling the Lexicon MC-10.
+- Add control for the Azur 840 preamplifier.
+- Keep existing networking, OTA, sensor, and telemetry components when useful.
+- Allow a gradual evolution toward a unified, fully web-based remote control.
+
+## Technical stack
+
+- Target board: ESP32 (PlatformIO environment: `wemos_d1_mini32`)
 - Framework: Arduino
-- Serveur HTTP embarque: WebServer
-- FS embarque: LittleFS (pages web dans `data/`)
-- Liaison serie logicielle:
+- Embedded HTTP server: WebServer
+- Embedded filesystem: LittleFS (web pages in `data/`)
+- Software serial connections:
   - Lexicon: RX GPIO 18, TX GPIO 19
   - Azur 840: RX GPIO 16, TX GPIO 17
 
-## Arborescence utile
+## Useful project structure
 
-- `src/main.cpp`: setup global (Wi-Fi, mDNS, OTA, routes historiques)
-- `src/lexicon.cpp`: protocole Lexicon + endpoints web/API Lexicon
-- `src/azur840.cpp`: protocole Azur 840 + endpoints web/API Azur
-- `data/lexicon.html`: UI web Lexicon
-- `data/azur.html`: UI web Azur 840
-- `data/shared-ui.css`: styles communs
-- `platformio.ini`: configuration build/deps
+- `src/main.cpp`: global setup (Wi-Fi, mDNS, OTA, and legacy routes)
+- `src/lexicon.cpp`: Lexicon protocol and Lexicon web/API endpoints
+- `src/azur840.cpp`: Azur 840 protocol and Azur web/API endpoints
+- `data/lexicon.html`: Lexicon web UI
+- `data/azur.html`: Azur 840 web UI
+- `data/shared-ui.css`: shared styles
+- `data/i18n.js`: UI translations and language preference storage
+- `platformio.ini`: build and dependency configuration
 
-## Prerequis
+## Requirements
 
-- PlatformIO Core installe (`pio` ou `platformio` dans le PATH)
-- Carte ESP32 connectee en USB
-- Cablage UART adapte aux equipements pilotes
+- PlatformIO Core installed (`pio` or `platformio` available in `PATH`)
+- ESP32 board connected over USB
+- UART wiring suitable for the controlled equipment
 
-## Build et flash firmware
+## Build and flash the firmware
 
-Depuis la racine du projet:
+From the project root:
 
 ```bash
 pio run -e wemos_d1_mini32
 pio run -e wemos_d1_mini32 -t upload
 ```
 
-Si besoin de preciser le port:
+To specify the serial port explicitly:
 
 ```bash
 pio run -e wemos_d1_mini32 -t upload --upload-port /dev/tty.usbserial-XXXX
 ```
 
-## Upload des assets web (LittleFS)
+## Upload the web assets (LittleFS)
 
-Les pages web dans `data/` doivent etre envoyees dans LittleFS.
+The web files from `data/` must be uploaded to LittleFS.
 
 macOS/Linux:
 
 ```bash
 ./upload_data_mac.sh
-# ou avec port explicite
+# or with an explicit port
 ./upload_data_mac.sh wemos_d1_mini32 /dev/tty.usbserial-XXXX
 ```
 
@@ -72,108 +79,121 @@ Windows:
 
 ```bat
 upload_data_windows.bat
-:: ou avec port explicite
+:: or with an explicit port
 upload_data_windows.bat wemos_d1_mini32 COM4
 ```
 
-## Acces a l'interface
+## Accessing the interface
 
-Au demarrage:
+At startup, the device:
 
-- tentative de connexion Wi-Fi sur credentials connus
-- sinon demarrage en mode AP (point d'acces)
-- publication mDNS (hostname dynamique, service HTTP)
+- attempts to connect to Wi-Fi using known credentials;
+- starts in access-point mode if the connection fails;
+- publishes a dynamic hostname and HTTP service over mDNS.
 
-Endpoints principaux:
+Main endpoints:
 
-- `GET /lexicon` : page web Lexicon
-- `GET /azur840` : page web Azur
-- `GET /shared-ui.css` : feuille de style commune
+- `GET /lexicon`: Lexicon web page
+- `GET /azur840`: Azur web page
+- `GET /shared-ui.css`: shared stylesheet
+- `GET /i18n.js`: French/English UI translations
 
-## API Lexicon
+## Interface localization
 
-### Commande standard
+The web interface is available in French and English without duplicating the HTML pages.
+
+- The language is selected from the `Setup` page.
+- The choice is stored in the browser under the `localStorage` key `lexicon.locale`.
+- On first access, the browser language is used when supported.
+- French is the fallback language.
+- Static translations and dynamically generated button labels are centralized in `data/i18n.js`.
+
+The preference belongs to the web origin being used. Access through the mDNS hostname and direct access through the device IP address may therefore have separate preferences.
+
+## Lexicon API
+
+### Standard command
 
 - `GET /lexicon_cmd?zone=..&command=..&data=...`
 - `GET /lexicon_cmd?zone=..&command=..&datahex=...`
 
-Parametres:
+Parameters:
 
-- `zone` et `command`: octets en hexadecimal (ex: `01`, `0A`, `FF`)
-- `data`: payload ASCII
-- `datahex`: payload binaire en hex (longueur paire), separateurs espaces/`:`/`-` acceptes
+- `zone` and `command`: hexadecimal bytes (for example `01`, `0A`, or `FF`)
+- `data`: ASCII payload
+- `datahex`: hexadecimal binary payload with an even length; spaces, `:`, and `-` separators are accepted
 
-Reponse type:
+Typical response:
 
-- `AC=<code_reponse_hex> DATA=<payload>`
+- `AC=<hex_response_code> DATA=<payload>`
 
-### Commande RC5
+### RC5 command
 
 - `GET /lexicon_rc5?zone=..&command1=..&command2=..`
 
-Parametres:
+Parameters:
 
-- `zone`, `command1`, `command2`: octets en hexadecimal
+- `zone`, `command1`, and `command2`: hexadecimal bytes
 
-Reponse type:
+Typical response:
 
-- `AC=<code_reponse_hex> RC5=<2 octets hex>`
+- `AC=<hex_response_code> RC5=<2 hexadecimal bytes>`
 
-## API Azur 840
+## Azur 840 API
 
-Endpoint:
+Endpoints:
 
 - `GET /azur840_api`
 - `POST /azur840_api`
 
-Modes supportes:
+Supported modes:
 
-- Mode direct ASCII via `tx`
-- Mode hex via `tx_hex`
-- Mode structure via `group`, `command`, `data`
+- Direct ASCII mode through `tx`
+- Hexadecimal mode through `tx_hex`
+- Structured mode through `group`, `command`, and `data`
 
-Regles mode structure:
+Structured mode rules:
 
-- `group` entre 1 et 5
-- `command` entre 0 et 99
-- `data` max 10 caracteres
-- format emis: `#<group>,<command_sur_2_chiffres>,<data>`
+- `group` between 1 and 5
+- `command` between 0 and 99
+- `data` up to 10 characters
+- emitted format: `#<group>,<two_digit_command>,<data>`
 
 ## OTA
 
-Endpoint de mise a jour firmware:
+Firmware update endpoints:
 
 - `GET /update`
-- `POST /update` (upload binaire)
+- `POST /update` (binary upload)
 
-## Fonctions heritagees (base coolhome)
+## Legacy features from the coolhome codebase
 
-Le code contient encore des fonctions historiques:
+The code still contains legacy features:
 
-- capteurs DHT / Dallas
-- logiques chauffage/arrosage
-- remontee periodique de donnees vers un serveur
+- DHT and Dallas sensors
+- heating and irrigation logic
+- periodic data reporting to a server
 
-Ces briques peuvent rester actives selon votre configuration, mais ne sont pas le coeur fonctionnel de la telecommande audio.
+These components may remain enabled depending on the configuration, but they are not part of the audio remote's core functionality.
 
-## Etat actuel et prochaines etapes
+## Current status and next steps
 
-Etat actuel:
+Current status:
 
-- base ESP32 fonctionnelle
-- UI web Lexicon et Azur disponibles
-- APIs serie en place pour Lexicon et Azur
+- functional ESP32 base
+- Lexicon and Azur web interfaces available
+- serial APIs implemented for both Lexicon and Azur
 
-Prochaines etapes recommandees:
+Recommended next steps:
 
-1. Unifier les ecrans web en une telecommande unique (sources, volume, power macros).
-2. Stabiliser les macros d'alimentation (ordre d'allumage/extinction securise).
-3. Ajouter journalisation et retour d'etat utilisateur (ack, timeout, erreurs).
-4. Isoler/retirer progressivement le legacy chauffage-arrosage si non utilise.
+1. Merge the web screens into a single remote control for sources, volume, and power macros.
+2. Stabilize the power macros with a safe startup and shutdown order.
+3. Improve logging and user-facing state feedback for acknowledgements, timeouts, and errors.
+4. Gradually isolate or remove the legacy heating and irrigation code when unused.
 
-## Auteurs
+## Authors
 
-Base historique:
+Original codebase:
 
 - Pierre Le Noan
 - Xavier Péchoultres
